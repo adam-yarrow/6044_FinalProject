@@ -5,8 +5,9 @@ function simData = Simulation()
 %}
     simData = struct();
 
-    modelParams = 
 
     for iTime = 1:nTimes
+        % TODO - add dynamics here
+    end
 
 end
