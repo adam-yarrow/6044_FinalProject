@@ -3,8 +3,8 @@ classdef GPS < handle
 
     properties
         % Internal States
-        x; % state vector
-        t; % Time (seconds)
+        x; % current state vector [posX, velX, posY, velY]
+        t; % current time (seconds)
         clockCountsSinceLastEmit;
       
         % Properties
@@ -12,20 +12,21 @@ classdef GPS < handle
         emitRate; % Hz (for sending a GPS packet)
         L1; % GPS carrier frequency
         dT;
-
     end
 
     methods 
         %{
             Constructor
         %}
-        function obj = GPS(id, gpsRate, x0, dT)
+        function obj = GPS(id, x0)
+            gpsParams = ModelParams('gps');
+
             obj.x = x0;
             obj.t = 0;
             obj.id = id;
-            obj.emitRate = gpsRate;
-            obj.L1 = 1575.42E6; % Hz 
-            obj.dT = dT;
+            obj.emitRate = gpsParams.emitRate;
+            obj.L1 = gpsParams.L1freq; % Hz 
+            obj.dT = ModelParams('dT');
             obj.clockCountsSinceLastEmit = 0;
 
             % TODO - work out if want to use L1 or CA code? which one gets
@@ -35,11 +36,13 @@ classdef GPS < handle
         %{
             Step Dynamics
         %}
-        function step(obj)
+        function stepDynamics(obj)
             % Propagate dynamics
+            obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT);
+
+            % Update time
             obj.t = obj.t + obj.dT;
         end
-
 
         %{
             Emit GPS packet
@@ -59,8 +62,9 @@ classdef GPS < handle
         %{
             Debugging Help
         %}
-        function [x,t] = getState()
-
+        function [x,t] = getState(obj)
+            x = obj.x;
+            t = obj.t;
         end
 
     end
