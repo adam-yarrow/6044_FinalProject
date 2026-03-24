@@ -54,6 +54,7 @@ classdef GPS < handle
             if (obj.clockCountsSinceLastEmit * obj.dT) >= 1/obj.emitRate
                 gpsPacket.id = obj.id;
                 gpsPacket.x = obj.x;
+                gpsPacket.t = obj.t;
                 gpsPacket.carrierFreq = obj.L1;
                 
                 obj.clockCountsSinceLastEmit = 0;

@@ -55,14 +55,28 @@ classdef Debris < handle
                     debrisMsg = struct();
                     debrisMsg.debris.id = obj.id;
                     debrisMsg.debris.x = obj.x;
+                    debrisMsg.debris.t = obj.t;
 
                     debrisMsg.gps = gpsMsg;
+
+                    %% TODO - add tumbling dynamics here in future to perturb signal strength
 
                     debrisMsgs{end+1} = debrisMsg;
                 end
             end
         end
 
+        %{
+            Debugging Help
+        %}
+        function [x,t] = getState(obj)
+            x = obj.x;
+            t = obj.t;
+        end
+
+        %{
+            Check line of sight
+        %}
         function fValidLineOfSight = checkLineOfSight(obj,xGPS)
             rE = ModelParams('rEarth');
             % X = xGPS(1);
@@ -71,11 +85,7 @@ classdef Debris < handle
             posDebris = [obj.x(1); obj.x(3)];
             posDebrisRelGPS = posDebris - posGPS;
 
-            % thetaGPS = atan2(Y,X); % angle between X axis and GPS radial line
-
-            %betaGPS = 
             fValidLineOfSight = true;
-
             % If dot product in position vectors is less than 0, you are on
             % the opposite side of the earth to the GPS satellite --> check
             % if sheilded by the earth.

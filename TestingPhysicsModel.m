@@ -1,25 +1,30 @@
 %% Testing GPS
 gpsAlt = ModelParams('gps','altitude');
 gpsIC1 = createCircularOrbitIC(gpsAlt,0);
-gpsIC2 = createCircularOrbitIC(gpsAlt,pi/2);
+
+debrisIC = createCircularOrbitIC(400,0);
+debrisIC(4) = debrisIC(4);
 
 % Build GPS objects
 GPS1 = GPS(1,gpsIC1);
-GPS2 = GPS(2,gpsIC2);
+
+% Build Debris objects
+Debris1 = Debris(2,debrisIC);
 
 % Run Dynamics
 times = 0:ModelParams('dT'):43200/2;
 nTimes = numel(times);
 
 xGPS1 = NaN(4,nTimes);
-xGPS2 = NaN(4,nTimes);
+xDebris1 = NaN(4,nTimes);
 
 count = 1;
 for tk = times
     GPS1.stepDynamics();
-    GPS2.stepDynamics();
+    Debris1.stepDynamics();
+
     xGPS1(:,count) = GPS1.getState();
-    xGPS2(:,count) = GPS2.getState();
+    xDebris1(:,count) = Debris1.getState();
     count = count + 1;
 end
 
@@ -27,12 +32,9 @@ end
 figure();
 hold on;
 plot(xGPS1(1,:),xGPS1(3,:),'r');
-plot(xGPS2(1,:),xGPS2(3,:),'b--');
+plot(xDebris1(1,:),xDebris1(3,:),'b');
 grid on;
 axis equal;
-
-%% Testing GPS handles
-test = {@GPS1.emitMsg, @GPS2.emitMsg};
 
 
 
