@@ -31,5 +31,8 @@ plot(xGPS2(1,:),xGPS2(3,:),'b--');
 grid on;
 axis equal;
 
+%% Testing GPS handles
+test = {@GPS1.emitMsg, @GPS2.emitMsg};
+
 
 

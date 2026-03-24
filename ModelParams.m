@@ -18,6 +18,8 @@ const.stateUnits = {'km','km/s','km','km/s'};
 const.measNames = {''};
 const.measUnits = {''};
 
+const.c = 299792.458; % km/s
+
 % GPS Parameters
 const.gps.emitRate = 1; % Hz
 const.gps.L1freq = 1575.42E6; % Hz 

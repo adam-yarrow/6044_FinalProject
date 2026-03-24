@@ -42,10 +42,11 @@ classdef GPS < handle
 
             % Update time
             obj.t = obj.t + obj.dT;
+            obj.clockCountsSinceLastEmit = obj.clockCountsSinceLastEmit + 1;
         end
 
         %{
-            Emit GPS packet
+            Emit GPS packet. MUST be called after stepDynamics() function
         %}
         function gpsPacket = emitMsg(obj)
             gpsPacket = struct();
