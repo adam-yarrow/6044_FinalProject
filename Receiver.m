@@ -51,7 +51,8 @@ classdef Receiver < handle
 
 
             %% TODO - check if we also have line of sight to the GPS itself, otherwise
-            %% we can't use a reflected message, it is just noise....
+            %% we can't use a reflected message - might be able to use doppler shift only
+            %% if we know what GPS we are recieving from based on codec
             %% Do we exclude any of those messages or deal with this in measurements?
             packets = {};
             for debrisMsg = debrisMsgs
@@ -63,7 +64,8 @@ classdef Receiver < handle
 
                     recieverPacket.debris = debrisMsgs.debris;
                     recieverPacket.gps = debrisMsgs.gps;
-
+                    recieverPacket.gps.rxToGpsLineOfSight = ...
+                        hasLineOfSight(obj,debrisMsgs.gps.x);
 
                     % TODO - determine if we are doing any calculations
                     % here or process sensor measurements externally?
@@ -76,17 +78,17 @@ classdef Receiver < handle
         %{
             Calculate line of sight between debris and reciever
         %}
-        function fLineOfSight = hasLineOfSight(obj,xDebris)
+        function fLineOfSight = hasLineOfSight(obj,xSecondBody)
             posR = [obj.x(1); obj.x(3)];
-            posDebris = [xDebris(1); xDebris(3)];
+            posSecondBody = [xSecondBody(1); xSecondBody(3)];
 
-            posDebrisRelR = posDebris - posR;
+            posSecondBodyRelR = posSecondBody - posR;
             eHatReciever =  posR / norm(posR);
 
             % If dot product of debris pos relative to reciever pos is
             % greater than zero then above the horizon, so line of sight
             % exists
-            fLineOfSight = (dot(posDebrisRelR,eHatReciever) > 0);
+            fLineOfSight = (dot(posSecondBodyRelR,eHatReciever) > 0);
 
         end
     end

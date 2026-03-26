@@ -1,24 +1,21 @@
 function const = ModelParams(varargin)
-% Constants
-mu = 398600; % Standard gravitational parmaeter (GM)
-dT = 10; % seconds
-
 % Build Structure
 const = struct();
 
 % Simulation Parameters
-const.dT = dT;
+const.dT = 0.1; % s
 const.rEarth = 6378; % km
 const.omegaEarth = 2*pi/86400; % rad/s
-const.mu = mu;
-const.nStates = 4;
+const.mu = 398600; % km^3/s^2
+const.c = 299792.458; % km/s
+
+
+const.nStates = 4; 
 const.nMeas = []; % TODO - determine if 1 or 2 here?
 const.stateNames = {'x','xDot','y','yDot'};
 const.stateUnits = {'km','km/s','km','km/s'};
-const.measNames = {''};
-const.measUnits = {''};
-
-const.c = 299792.458; % km/s
+const.measNames = {'fDoppler'};
+const.measUnits = {'Hz'};
 
 % GPS Parameters
 const.gps.emitRate = 1; % Hz

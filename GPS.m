@@ -50,6 +50,12 @@ classdef GPS < handle
         %}
         function gpsPacket = emitMsg(obj)
             gpsPacket = struct();
+
+            %{
+                TODO - this assumes that the dT is smaller than the GPS rate 
+                and is an integer multiple
+            %} 
+
             % Emit GPS if elapsed time meets emission rate
             if (obj.clockCountsSinceLastEmit * obj.dT) >= 1/obj.emitRate
                 gpsPacket.id = obj.id;
