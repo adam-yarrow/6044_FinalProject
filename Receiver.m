@@ -55,17 +55,18 @@ classdef Receiver < handle
             %% if we know what GPS we are recieving from based on codec
             %% Do we exclude any of those messages or deal with this in measurements?
             packets = {};
-            for debrisMsg = debrisMsgs
+            for debrisMsgCell = debrisMsgs
+                debrisMsg = debrisMsgCell{1};
                 if hasLineOfSight(obj,debrisMsg.debris.x)
                     recieverPacket = struct();
                     recieverPacket.rx.id = obj.id;
                     recieverPacket.rx.x = obj.x;
                     recieverPacket.rx.t = obj.t;
 
-                    recieverPacket.debris = debrisMsgs.debris;
-                    recieverPacket.gps = debrisMsgs.gps;
+                    recieverPacket.debris = debrisMsg.debris;
+                    recieverPacket.gps = debrisMsg.gps;
                     recieverPacket.gps.rxToGpsLineOfSight = ...
-                        hasLineOfSight(obj,debrisMsgs.gps.x);
+                        hasLineOfSight(obj,debrisMsg.gps.x);
 
                     % TODO - determine if we are doing any calculations
                     % here or process sensor measurements externally?

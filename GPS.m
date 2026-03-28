@@ -49,7 +49,7 @@ classdef GPS < handle
             Emit GPS packet. MUST be called after stepDynamics() function
         %}
         function gpsPacket = emitMsg(obj)
-            gpsPacket = struct();
+            gpsPacket = [];
 
             %{
                 TODO - this assumes that the dT is smaller than the GPS rate 
@@ -58,6 +58,7 @@ classdef GPS < handle
 
             % Emit GPS if elapsed time meets emission rate
             if (obj.clockCountsSinceLastEmit * obj.dT) >= 1/obj.emitRate
+                gpsPacket = struct();
                 gpsPacket.id = obj.id;
                 gpsPacket.x = obj.x;
                 gpsPacket.t = obj.t;

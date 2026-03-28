@@ -45,9 +45,10 @@ classdef Debris < handle
             debrisMsgs = {};
 
             % Process all GPS messages
-            for gpsMsg = gpsMsgs                
+            for gpsMsgCell = gpsMsgs       
+                gpsMsg = gpsMsgCell{1}; % pull out valid GPS msg
                 % Package message if valid
-                if checkLineOfSight(obj, gpsMsg.x)
+                if  checkLineOfSight(obj, gpsMsg.x)
 
                     % TODO - do we incorporate time of flight calculations
                     % here???? E.g. delay message re-emission?
