@@ -14,8 +14,16 @@ const.nStates = 4;
 const.nMeas = []; % TODO - determine if 1 or 2 here?
 const.stateNames = {'x','xDot','y','yDot'};
 const.stateUnits = {'km','km/s','km','km/s'};
-const.measNames = {'fDoppler'};
-const.measUnits = {'Hz'};
+
+% Meas Model
+const.fIncludeTimeOfFlight = false;
+if (const.fIncludeTimeOfFlight)
+    const.measNames = {'fDoppler','timeOfFlight'};
+    const.measUnits = {'Hz','s'};
+else
+    const.measNames = {'fDoppler'};
+    const.measUnits = {'Hz'};
+end
 
 % GPS Parameters
 const.gps.emitRate = 1; % Hz

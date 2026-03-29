@@ -35,8 +35,9 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime)
     simData.msgs.rx = cell(simData.nTimes,1);
 
     % Processed Measurements
-    %% TODO
-    
+    simData.meas.time = []; % Nx1
+    simData.meas.y = []; % 2xN vector of [dopplerShift; timeOfFlight]
+   
     %% Build Objects
     [gpsObjs, rxObjs, debrisObjs] = ...
             buildObjects(simData, params, thetaIC_GPS, thetaIC_Rx, debrisIC);
@@ -55,8 +56,15 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime)
          simData.msgs.debris{iTime}, ...
          simData.msgs.rx{iTime}] = getMsgs(simData, gpsObjs, debrisObjs, rxObjs);
 
-        % Generate Raw Measurements
-        %% TODO
+        % Convert Msgs to Measurement Data
+        for iRxMsg = 1:numel(simData.msgs.rx{iTime})
+            rxMsg = simData.msgs.rx{iTime}{iRxMsg};
+            y = measurementModel(params.gps.L1freq, ...
+                                rxMsg.gps.x, rxMsg.debris.x, rxMsg.rx.x,...
+                                params.fIncludeTimeOfFlight);
+            simData.meas.time(end+1) = rxMsg.rx.t;
+            simData.meas.y(:,end+1) = y;
+        end
 
         % Update Progress and check for cancellation
         wb = progressBar(iTime, simData.nTimes, t0, wb);

@@ -1,6 +1,6 @@
 %% Generate Data
 debrisIC = createCircularOrbitIC(10000,0);
-endTime = 1000;
+endTime = 3000;
 
 % Full Case
 thetaRx = linspace(0,2*pi,12+1); % every 30 deg
@@ -11,7 +11,7 @@ thetaRx = [0,pi/2];
 thetaGPS = [0,pi/4];
 
 % Generate Sim Data
-fRegen = false;
+fRegen = true;
 if fRegen || ~exist('simData','var')
     simData = Simulation(thetaGPS,thetaRx, debrisIC, endTime);
 end
