@@ -31,6 +31,11 @@ classdef Debris < handle
             % Propagate dynamics
             obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT);
 
+
+            if ModelParams('debris','fProcessNoise')
+                % obj.x = obj.x + TODO;
+            end
+
             % Update time
             obj.t = obj.t + obj.dT;
         end
@@ -49,14 +54,13 @@ classdef Debris < handle
                 gpsMsg = gpsMsgCell{1}; % pull out valid GPS msg
                 % Package message if valid
                 if  checkLineOfSight(obj, gpsMsg.x)
-
-                    % TODO - do we incorporate time of flight calculations
-                    % here???? E.g. delay message re-emission?
+                    % Time stamp message arrival at Debris
+                    delT = timeOfFlight(obj.x, gpsMsg.x);
 
                     debrisMsg = struct();
                     debrisMsg.debris.id = obj.id;
                     debrisMsg.debris.x = obj.x;
-                    debrisMsg.debris.t = obj.t;
+                    debrisMsg.debris.t = obj.t + delT;
 
                     debrisMsg.gps = gpsMsg;
 

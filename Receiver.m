@@ -28,7 +28,10 @@ classdef Receiver < handle
         function stepDynamics(obj)
             % Propagate dynamics
             obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT);
-
+            
+            % NOTE: assuming no process noise in Rx because it is fixed on
+            % Earth
+            
             % Update time
             obj.t = obj.t + obj.dT;
         end
@@ -58,10 +61,13 @@ classdef Receiver < handle
             for debrisMsgCell = debrisMsgs
                 debrisMsg = debrisMsgCell{1};
                 if hasLineOfSight(obj,debrisMsg.debris.x)
+                    % Time of Flight (time stamp arrival of debris at Rx)
+                    delT = timeOfFlight(obj.x, debrisMsg.x);
+
                     recieverPacket = struct();
                     recieverPacket.rx.id = obj.id;
                     recieverPacket.rx.x = obj.x;
-                    recieverPacket.rx.t = obj.t;
+                    recieverPacket.rx.t = obj.t + delT;
 
                     recieverPacket.debris = debrisMsg.debris;
                     recieverPacket.gps = debrisMsg.gps;
