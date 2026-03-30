@@ -8,6 +8,13 @@ classdef Debris < handle
         x; % current state vector [posX, velX, posY, velY]
         t; % current time (seconds) 
 
+        debrisParams;
+
+        % Process Noise
+        Qapprox;
+        Sq; % Cholesky decopy of Qapprox
+        nProcessNoiseStates;
+
         % Properties
         id;
         dT;
@@ -22,6 +29,12 @@ classdef Debris < handle
             obj.t = 0;
             obj.id = id;
             obj.dT = ModelParams('dT');
+            obj.debrisParams = ModelParams('debris');
+
+            % Euler approx of process noise
+            obj.Qapprox = obj.debrisParams.W * obj.dT; 
+            obj.Sq = chol(obj.Qapprox,'lower');
+            obj.nProcessNoiseStates = size(obj.Qapprox,1);
         end
 
         %{
@@ -31,17 +44,22 @@ classdef Debris < handle
             % Propagate dynamics
             obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT);
 
-
-            if ModelParams('debris','fProcessNoise')
-                % obj.x = obj.x + TODO;
+            % Process Noise Addition
+            if obj.debrisParams.fProcessNoise   
+                % AWGN: Gamma maps process noise to states (accel only
+                % typically). Sq is the square root of Qapprox. Zero mean
+                % gaussian noise.
+                obj.x = obj.x + ...
+                    obj.debrisParams.gamma*obj.Sq*randn(obj.nProcessNoiseStates,1);
             end
 
             % Update time
             obj.t = obj.t + obj.dT;
         end
-
-        % TODO - need to pass into the debris all GPS satelitles
-        % Then do angle of incidence checks etc.
+    
+        %{
+            Process GPS reflections off debris
+        %}
         function debrisMsgs = emitMsg(obj, gpsMsgs)
             %{
                 gpsMsgs = cell array of gps messages.

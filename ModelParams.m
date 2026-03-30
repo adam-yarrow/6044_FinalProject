@@ -32,7 +32,13 @@ const.gps.altitude = 20180; % km
 
 % Debris Parameters
 const.debris.fProcessNoise = false;
-%% TODO - define process noise
+%% TODO - decide on appropriate process noise
+const.debris.W = diag([1E-8,1E-8]); 
+const.debris.gamma = [0, 0;
+                      1, 0;
+                      0, 0;
+                      0, 1]; % Process noise only impacts acceleration states
+
 
 % Receiver Parameters
 const.rx.dopplerThreshold = calcDopplerThreshold(const.gps.L1freq,...
@@ -42,7 +48,7 @@ const.rx.pDetection = 1.0; % Probability of detection
 %% TODO - decide on these parameters
 dopplerMeasStdDev = 25; % Hz - guestimate, can adjust to make problem more or less difficult
 timeOfFlightStdDev = NaN; % s
-const.rx.measCovariance = diag([dopplerMeasStdDev^2; timeOfFlightStdDev^2]); % doppler (Hz)^2, timeDelay (s)^2
+const.rx.V = diag([dopplerMeasStdDev^2; timeOfFlightStdDev^2]); % doppler (Hz)^2, timeDelay (s)^2
 
 % Clutter Parameters
 const.clutter.fClutter = false; % clutter on/off

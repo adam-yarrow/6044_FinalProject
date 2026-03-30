@@ -67,7 +67,7 @@ classdef Receiver < handle
                     recieverPacket = struct();
                     recieverPacket.rx.id = obj.id;
                     recieverPacket.rx.x = obj.x;
-                    recieverPacket.rx.t = obj.t + delT;
+                    recieverPacket.rx.t = debrisMsg.t + delT; % covers total transmission time
 
                     recieverPacket.debris = debrisMsg.debris;
                     recieverPacket.gps = debrisMsg.gps;

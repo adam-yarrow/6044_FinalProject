@@ -3,6 +3,7 @@ function y = measurementModel(fT, xGPS, xDebris, xRx, fIncludeTimeDelay, fTruthM
     xGPS = state of GPS
     xDebris = state of Debris
     xRx = state of reciever
+    All states are at the same time
     fT = GPS transmission frequency
 %}
 
@@ -33,13 +34,16 @@ y(1,1) = (fT/cKmPerS) * (Vdg + Vrd);
 
 %% Time of Flight
 if fIncludeTimeDelay
+    % NOTE: this time of flight estimate does not account for transmission
+    % time. However, the time we record as the true transmission time is
+    % correct
     y(2,1) =  (abs(Pd - Pg) + abs(Pr - Pd)) / cKmPerS;
 end
 
 %% Noise Model
 if ~fTruthModel
     % Static Gaussian Noise Model (Ref: Ristic Ch8)
-    Rtrue = ModelParams('rx','measCovariance');
+    Rtrue = ModelParams('rx','V')/ModelParams('dT'); % discrete time band limited noise
     S = chol(Rtrue,'lower');    
     nVars = numel(y);
 
