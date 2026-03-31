@@ -53,7 +53,7 @@ if ~fTruthModel
     % Dynamic Noise Model
     %% TODO - could be a function of distance square
     %% TODO - could be a function of debris orientation
-    dynamicMeasNoise = zeros(nVar,1);
+    dynamicMeasNoise = zeros(nVars,1);
 
     % Total Response
     y = y + staticMeasNoise + dynamicMeasNoise;

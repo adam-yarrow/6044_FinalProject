@@ -47,7 +47,7 @@ const.rx.dopplerThreshold = calcDopplerThreshold(const.gps.L1freq,...
 const.rx.pDetection = 1.0; % Probability of detection
 %% TODO - decide on these parameters
 dopplerMeasStdDev = 25; % Hz - guestimate, can adjust to make problem more or less difficult
-timeOfFlightStdDev = NaN; % s
+timeOfFlightStdDev = 0.01; % s
 const.rx.V = diag([dopplerMeasStdDev^2; timeOfFlightStdDev^2]); % doppler (Hz)^2, timeDelay (s)^2
 
 % Clutter Parameters

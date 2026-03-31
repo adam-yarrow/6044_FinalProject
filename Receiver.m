@@ -62,12 +62,12 @@ classdef Receiver < handle
                 debrisMsg = debrisMsgCell{1};
                 if hasLineOfSight(obj,debrisMsg.debris.x)
                     % Time of Flight (time stamp arrival of debris at Rx)
-                    delT = timeOfFlight(obj.x, debrisMsg.x);
+                    delT = timeOfFlight(obj.x, debrisMsg.debris.x);
 
                     recieverPacket = struct();
                     recieverPacket.rx.id = obj.id;
                     recieverPacket.rx.x = obj.x;
-                    recieverPacket.rx.t = debrisMsg.t + delT; % covers total transmission time
+                    recieverPacket.rx.t = debrisMsg.debris.t + delT; % covers total transmission time
 
                     recieverPacket.debris = debrisMsg.debris;
                     recieverPacket.gps = debrisMsg.gps;
