@@ -29,8 +29,10 @@ end
 const.gps.emitRate = 1; % Hz
 const.gps.L1freq = 1575.42E6; % Hz 
 const.gps.altitude = 20180; % km
+const.gps.nSatellites = 31;
 
 % Debris Parameters
+const.debris.altitude = 400; % km
 const.debris.fProcessNoise = false;
 %% TODO - decide on appropriate process noise
 const.debris.W = diag([1E-8,1E-8]); 
@@ -41,6 +43,7 @@ const.debris.gamma = [0, 0;
 
 
 % Receiver Parameters
+const.rx.nRx = 13; % Every 30 deg
 const.rx.dopplerThreshold = calcDopplerThreshold(const.gps.L1freq,...
                                                  const.rEarth, const.gps.altitude,...
                                                  const.mu, const.c); % |Doppler frequency| in Hz you can't detect

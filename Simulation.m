@@ -37,7 +37,7 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime)
     % Processed Measurements
     simData.meas.simTime = []; % Nx1 vector of simulation times (times when GPS emitted)
     simData.meas.time = []; % Nx1
-    simData.meas.y = []; % 2xN vector of [dopplerShift; timeOfFlight]
+    simData.meas.y = []; % vector of measurements
    
     %% Build Objects
     [gpsObjs, rxObjs, debrisObjs] = ...
@@ -83,9 +83,6 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime)
 end
 
 function [gpsMsgs, debrisMsgs, rxMsgs] = getMsgs(simData, gpsObjs, debrisObjs, rxObjs)
-
-    % TODO - maybe preallocate sizes???
-
     % Get All GPS msgs
     gpsMsgs = {};
     for iGPS = 1:simData.nGPS
