@@ -11,8 +11,8 @@ classdef Debris < handle
         debrisParams;
 
         % Process Noise
-        Qapprox;
-        Sq; % Cholesky decopy of Qapprox
+        W; % continuous time process noise intensity
+        Sw; % Cholesky decopy of W
         nProcessNoiseStates;
 
         % Properties
@@ -32,9 +32,9 @@ classdef Debris < handle
             obj.debrisParams = ModelParams('debris');
 
             % Euler approx of process noise
-            obj.Qapprox = obj.debrisParams.W * obj.dT; 
-            obj.Sq = chol(obj.Qapprox,'lower');
-            obj.nProcessNoiseStates = size(obj.Qapprox,1);
+            obj.W = obj.debrisParams.W;
+            obj.Sw = chol(obj.W,'lower');
+            obj.nProcessNoiseStates = size(obj.W,1);
         end
 
         %{
@@ -42,15 +42,15 @@ classdef Debris < handle
         %}
         function stepDynamics(obj)
             % Propagate dynamics
-            obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT);
-
-            % Process Noise Addition
-            if obj.debrisParams.fProcessNoise   
+            if obj.debrisParams.fProcessNoise
                 % AWGN: Gamma maps process noise to states (accel only
                 % typically). Sq is the square root of Qapprox. Zero mean
                 % gaussian noise.
-                obj.x = obj.x + ...
-                    obj.debrisParams.gamma*obj.Sq*randn(obj.nProcessNoiseStates,1);
+                processNoise = obj.debrisParams.gamma * obj.Sw * ...
+                               randn(obj.nProcessNoiseStates,1);
+                obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT, processNoise);
+            else
+                obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT);
             end
 
             % Update time
