@@ -49,8 +49,8 @@ const.rx.dopplerThreshold = calcDopplerThreshold(const.gps.L1freq,...
                                                  const.mu, const.c); % |Doppler frequency| in Hz you can't detect
 const.rx.pDetection = 1.0; % Probability of detection
 %% TODO - decide on these parameters
-dopplerMeasStdDev = 25; % Hz - guestimate, can adjust to make problem more or less difficult
-timeOfFlightStdDev = 0.01; % s
+dopplerMeasStdDev = sqrt(30); % Hz - see paper by Kassas and Khairallah, 2023
+timeOfFlightStdDev =  6E-6; % s TOO SMALL I THINK, maybe need clock drift or bias?
 const.rx.V = diag([dopplerMeasStdDev^2; timeOfFlightStdDev^2]); % doppler (Hz)^2, timeDelay (s)^2
 
 % Clutter Parameters

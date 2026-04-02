@@ -24,13 +24,13 @@ Pd = xDebris([1,3]);
 Pr = xRx([1,3]);
 
 % Unit position vectors (GPS or Rx relative to debris)
-eGD = (Pg - Pd) / norm((Pd - Pg)); % vector from GPS to Debris
+eGD = (Pd - Pg) / norm((Pd - Pg)); % vector from GPS to Debris
 eRD = (Pr - Pd) / norm((Pr - Pd)); % vector from debris to Rx
 
 Vdg = dot((Vd - Vg),eGD); % range rate of debris relative to GPS
-Vrd = dot((Vd - Vr), eRD); % Velocity of debris relative to Rx projected onto unit vector from Debris to Rx
+Vrd = dot((Vr - Vd), eRD); % Velocity of Rx relative to debris projected onto unit vector from Debris to Rx
 
-y(1,1) = (fT/cKmPerS) * (Vdg + Vrd); 
+y(1,1) = -(fT/cKmPerS) * (Vdg + Vrd); 
 
 %% Time of Flight
 if fIncludeTimeDelay
