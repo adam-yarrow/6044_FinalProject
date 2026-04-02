@@ -1,4 +1,4 @@
-function simData = GenerateSimData(fPlot,fSave)
+function simData = GenerateSimData(fPlot)
     params = ModelParams();
     
     % Debris IC - TODO: Add perturbations here

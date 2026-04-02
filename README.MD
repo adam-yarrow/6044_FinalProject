@@ -1,1 +1,1 @@
-## TODO add readme
+Run the Startup.m script
