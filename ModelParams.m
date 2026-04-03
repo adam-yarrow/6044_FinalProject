@@ -34,8 +34,7 @@ const.gps.nSatellites = 31;
 
 % Debris Parameters
 const.debris.altitude = 400; % km
-const.debris.fProcessNoise = false;
-%% TODO - decide on appropriate process noise
+const.debris.fProcessNoise = true;
 accelProcessNoiseStdDev = 1E-6; % km/s^2 - from: Fig. 3.1 of "Satellite Orbits - Models Methods Applications" by Montenbruk and Gill
 const.debris.W = diag([accelProcessNoiseStdDev^2,accelProcessNoiseStdDev^2]); % (km/s^2)^2
 const.debris.gamma = [0, 0;
