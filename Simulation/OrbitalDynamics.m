@@ -5,7 +5,7 @@ function [xkp1] = OrbitalDynamics(tk,xk,dT,processNoise)
     %}
     
     if nargin < 4
-        processNoise = zeros(size(xk));
+        processNoise = zeros(ModelParams('nStates'),1);
     end
 
     mu = ModelParams('mu');

@@ -12,7 +12,7 @@ function [dT] = timeOfFlight(x1,x2)
     % 
     % v2 = [x2(2); x2(4)];
     % 
-    % speedOfLight = ModelParams('c');
+    speedOfLight = ModelParams('c');
     % 
     % a = speedOfLight^2 - v2'*v2;    
     % b = -2*v2'*(p2-p1);
