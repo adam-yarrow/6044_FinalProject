@@ -38,6 +38,8 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime)
     simData.meas.simTime = []; % Nx1 vector of simulation times (times when GPS emitted)
     simData.meas.time = []; % Nx1
     simData.meas.y = []; % vector of measurements
+    simData.meas.xGPS = []; % state of the GPS at simTime (e.g. not accounting for motion during transmission time)
+    simData.meas.xRx = []; % state of the Rx at simTime
    
     %% Build Objects
     [gpsObjs, rxObjs, debrisObjs] = ...
@@ -67,6 +69,8 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime)
             simData.meas.time(end+1) = rxMsg.rx.t; % time of receipt
             simData.meas.simTime(end+1) = simData.t(iTime); % time of emission
             simData.meas.y(:,end+1) = y;
+            simData.meas.xGPS(:,end+1) = rxMsg.gps.x;
+            simData.meas.xRx(:,end+1) = rxMsg.rx.x;
 
             %% TODO - add clutter here (e.g. distribution of other returns)
         end

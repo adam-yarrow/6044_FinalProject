@@ -10,7 +10,6 @@ const.mu = 398600; % km^3/s^2
 const.c = 299792.458; % km/s
 
 const.nStates = 4; 
-const.nMeas = []; % TODO - determine if 1 or 2 here?
 const.stateNames = {'x','xDot','y','yDot'};
 const.stateUnits = {'km','km/s','km','km/s'};
 
@@ -20,9 +19,11 @@ const.fTruthMeasModel = false;
 if (const.fIncludeTimeOfFlight)
     const.measNames = {'fDoppler','timeOfFlight'};
     const.measUnits = {'Hz','s'};
+    const.nMeas = 2;
 else
     const.measNames = {'fDoppler'};
     const.measUnits = {'Hz'};
+    const.nMeas = 1;
 end
 
 % GPS Parameters
@@ -35,12 +36,12 @@ const.gps.nSatellites = 31;
 const.debris.altitude = 400; % km
 const.debris.fProcessNoise = false;
 %% TODO - decide on appropriate process noise
-const.debris.W = diag([1E-8,1E-8]); 
+accelProcessNoiseStdDev = 1E-6; % km/s^2 - from: Fig. 3.1 of "Satellite Orbits - Models Methods Applications" by Montenbruk and Gill
+const.debris.W = diag([accelProcessNoiseStdDev^2,accelProcessNoiseStdDev^2]); % (km/s^2)^2
 const.debris.gamma = [0, 0;
                       1, 0;
                       0, 0;
                       0, 1]; % Process noise only impacts acceleration states
-
 
 % Receiver Parameters
 const.rx.nRx = 13; % Every 30 deg
