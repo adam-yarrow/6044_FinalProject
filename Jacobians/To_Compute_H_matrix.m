@@ -21,4 +21,4 @@ disp(Jac_H);
 % Generate the callable numerical function
 matlabFunction(Jac_H, 'File', 'compute_H_matrix', ...
     'Vars', {[x; x_dot; y; y_dot], [xg; xg_dot; yg; yg_dot], [xr; xr_dot; yr; yr_dot], fT, c});
-% Inputs to the function : x_k, gps_state_k, rx_state_k, fT_val, c_val
+% Inputs to the function : debris_state_k, gps_state_k, rx_state_k, fT_val, c_val
