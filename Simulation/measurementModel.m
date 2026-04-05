@@ -44,6 +44,8 @@ end
 if ~fTruthModel
     % Static Gaussian Noise Model (Ref: Ristic Ch8)
     Rtrue = ModelParams('rx','V')/ModelParams('dT'); % discrete time band limited noise
+    
+    %% TODO - need to check if my constant dT approach is correct
     S = chol(Rtrue,'lower');    
     nVars = numel(y);
 
@@ -59,4 +61,14 @@ if ~fTruthModel
     y = y + staticMeasNoise + dynamicMeasNoise;
 end
 
+%% Doppler Detection Threshold
+%% TODO - do we handle this in the likelihood model or HERE?
+% if ModelParams('rx','fImplementDopplerThresholdGating')
+%     % If doppler measurement is below the threshold throw away all
+%     % measurements because they can't be distinguished from real GPS
+%     % measurements
+%     if abs(y(1,1)) < ModelParams('rx','dopplerThreshold')
+%         y = [];
+%     end
+% end
 end

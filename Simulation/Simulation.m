@@ -66,11 +66,16 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime)
                                 rxMsg.gps.x, rxMsg.debris.x, rxMsg.rx.x,...
                                 params.fIncludeTimeOfFlight,...
                                 params.fTruthMeasModel);
-            simData.meas.time(end+1) = rxMsg.rx.t; % time of receipt
-            simData.meas.simTime(end+1) = simData.t(iTime); % time of emission
-            simData.meas.y(:,end+1) = y;
-            simData.meas.xGPS(:,end+1) = rxMsg.gps.x;
-            simData.meas.xRx(:,end+1) = rxMsg.rx.x;
+            
+            % y can be empty if outside of doppler threshold
+            if ~isempty(y)
+                simData.meas.time(end+1) = rxMsg.rx.t; % time of receipt
+                simData.meas.simTime(end+1) = simData.t(iTime); % time of emission
+                simData.meas.y(:,end+1) = y;
+                simData.meas.xGPS(:,end+1) = rxMsg.gps.x;
+                simData.meas.xRx(:,end+1) = rxMsg.rx.x;
+            end
+            
 
             %% TODO - add clutter here (e.g. distribution of other returns)
         end

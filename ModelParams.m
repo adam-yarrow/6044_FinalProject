@@ -35,7 +35,6 @@ const.gps.nSatellites = 31;
 % Debris Parameters
 const.debris.altitude = 1000; % km
 const.debris.fProcessNoise = false;
-%% TODO - decide on appropriate process noise
 accelProcessNoiseStdDev = 1E-6; % km/s^2 - from: Fig. 3.1 of "Satellite Orbits - Models Methods Applications" by Montenbruk and Gill
 const.debris.W = diag([accelProcessNoiseStdDev^2,accelProcessNoiseStdDev^2]); % (km/s^2)^2
 const.debris.gamma = [0, 0;
@@ -49,14 +48,19 @@ const.rx.dopplerThreshold = calcDopplerThreshold(const.gps.L1freq,...
                                                  const.rEarth, const.gps.altitude,...
                                                  const.mu, const.c); % |Doppler frequency| in Hz you can't detect
 const.rx.pDetection = 1.0; % Probability of detection
-%% TODO - decide on these parameters
+const.rx.fImplementDopplerThresholdGating = true;
+
 dopplerMeasStdDev = sqrt(30); % Hz - see paper by Kassas and Khairallah, 2023
-timeOfFlightStdDev =  6E-6; % s TOO SMALL I THINK, maybe need clock drift or bias?
+timeOfFlightStdDev =  sqrt(3E-16); % s (TODO MAYBE too small, could also do a range based sigma estimate)
 const.rx.V = diag([dopplerMeasStdDev^2; timeOfFlightStdDev^2]); % doppler (Hz)^2, timeDelay (s)^2
 
 % Clutter Parameters
 const.clutter.fClutter = false; % clutter on/off
 % TODO - actually implement with poisson model if deemed required
+
+
+%% Filtering parameters
+% const.est.pf.R = const.rx.V/const.dT; % TODO - maybe this is different?
 
 
 
