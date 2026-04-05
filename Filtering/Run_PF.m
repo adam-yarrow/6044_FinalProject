@@ -12,7 +12,7 @@ function [pf] = Run_PF(Np, simData, P0, mu0)
     %}
 
     const = ModelParams();
-    gpsPacketTimes = unique(simData.meas.simTime);
+    gpsPacketTimes = unique(simData.meas.gpsEmissionTime);
     nMeasurements = numel(gpsPacketTimes);
     nTimes = nMeasurements + 1;
     
@@ -33,12 +33,14 @@ function [pf] = Run_PF(Np, simData, P0, mu0)
             
     %% Propagate Particles
     prevGPStime = 0;
+    t0 = tic();
+    wb = progressBar(1,nTimes,t0,[]);
     for k = 2:nTimes % Matlab indexing makes this interesting
         kt1 = k - 1;
 
         % Get relevant measurements at the current GPS packet emission time
         currentGPStime = gpsPacketTimes(k-1); % k-1 as the GPS packet times start from k = 1, which is matlab index 2 
-        validTimeIdx = simData.meas.simTime == currentGPStime;
+        validTimeIdx = simData.meas.gpsEmissionTime == currentGPStime;
         yk = [simData.meas.y(:,validTimeIdx);
               simData.meas.xGPS(:,validTimeIdx);
               simData.meas.xRx(:,validTimeIdx)];
@@ -58,6 +60,14 @@ function [pf] = Run_PF(Np, simData, P0, mu0)
 
         % Update time
         prevGPStime = currentGPStime;
+
+        % Update Progress and check for cancellation
+        wb = progressBar(k, nTimes, t0, wb);
+    
+        if isfield(wb, 'cancelled') && wb.cancelled
+            fprintf('Loop cancelled at iter %d\n', k);
+            break
+        end
     end  
     
 

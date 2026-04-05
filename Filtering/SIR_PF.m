@@ -20,7 +20,12 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1] = SIR_PF(x_k, w_k, y_kp1, q)
 
     % Normalize weights
     wTot = sum(w_kp1);
+    if (wTot == 0)
+        error('Particle collapse occured');
+    end
+
     w_kp1_Normalized = w_kp1 ./ wTot;
+    w_kp1 = w_kp1_Normalized; % Set this so we can see the correct values
 
     % Estimators
     % MMSE
@@ -28,17 +33,17 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1] = SIR_PF(x_k, w_k, y_kp1, q)
     est.cov = zeros(nStates,nStates);
     for iParticle = 1:N
         est.cov = est.cov + w_kp1_Normalized(iParticle)*...
-            ((x_kp1 - est.MMSE)'*(x_kp1 - est.MMSE));
+            ((x_kp1(:,iParticle) - est.MMSE)*(x_kp1(:,iParticle) - est.MMSE)');
     end
 
     % MAP
-    [~, mapIdx] = max(w_kp1); % Find argmax over all particles
+    [~, mapIdx] = max(w_kp1_Normalized); % Find argmax over all particles
     est.MAP = x_kp1(:,mapIdx);
 
     % Resampling - draw new particles from approx posterior given by
     % w_kp1_Normalized = p(x_k+1 | Y_1:k+1)
-    x_kp1 = randsample(x_kp1,N,true,w_kp1_Normalized);
-
+    indicesToSampleFrom = randsample(1:N,N,true,w_kp1_Normalized);
+    x_kp1 = x_kp1(:,indicesToSampleFrom);
     % Uniform weights after resampling
     w_kp1_Normalized = 1/N; 
         

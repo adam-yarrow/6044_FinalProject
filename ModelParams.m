@@ -14,7 +14,7 @@ const.stateNames = {'x','xDot','y','yDot'};
 const.stateUnits = {'km','km/s','km','km/s'};
 
 % Meas Model
-const.fIncludeTimeOfFlight = true;
+const.fIncludeTimeOfFlight = false;
 const.fTruthMeasModel = false;
 if (const.fIncludeTimeOfFlight)
     const.measNames = {'fDoppler','timeOfFlight'};
@@ -61,7 +61,7 @@ const.clutter.fClutter = false; % clutter on/off
 
 
 %% Filtering parameters
-% const.est.pf.R = const.rx.V/const.dT; % TODO - maybe this is different?
+const.est.pf.covInflationSF = 1; % Hopes and prayers?
 
 
 

@@ -40,6 +40,8 @@ if ~fIncludeTimeDelay
     Rtrue = Rtrue(1,1); % pull out doppler covariance only
 end
 
+Rtrue = Rtrue * const.est.pf.covInflationSF;
+
 %% Process all measurements as if they were IID
 p = 1;
 for iMeas = 1:nMeasurements
