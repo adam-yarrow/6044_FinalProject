@@ -3,8 +3,8 @@ function p = pYgivenX(xk, yk)
     Likelihood function for a given measurement vector y, given a debris
     state, GPS state and Rx state.
     
-    xK = [xDebris; xGPS; xRx];
-    yk = measurements vector
+    xK = [xDebris];
+    yk = measurements vector: 9/10 x Nmeasurements [[yDoppler, yDt, xGPS, xRx]^T, ...]
     t = sim times vector
 %}
 %% Constants
@@ -12,56 +12,73 @@ const = ModelParams();
 
 % Check if measurement has time of flight included
 fIncludeTimeDelay = false;
-if size(yk) == 2
+nMeasVars = 1;
+if size(yk,1) == 10 % e.g. 4 x GPS states + 4 x Rx states + yDoppler + yDt
     fIncludeTimeDelay = true;
+    nMeasVars = 2;
 end
-fTruthModel = true;
-
-fT = const.gps.L1freq;
-fDThreshold = const.rx.dopplerThreshold;
-fUseDopplerThreshold = const.rx.fImplementDopplerThresholdGating;
 
 nStates = const.nStates;
 
 % Extract relevant states
-xk = reshape(xk,nStates,[]);
-xDebris = xk(:,1);
-xGPS = xk(:,2);
-xRx = xk(:,3);
- 
+y = yk(1:nMeasVars,:); % Actual measurements, not just state truth values
 
-%% Get Estimated yk = h(xk)
-yHat = measurementModel(fT, xGPS, xDebris, xRx, fIncludeTimeDelay, fTruthModel);
+gpsIdxStart = nMeasVars+1;
+gpsIdxEnd = gpsIdxStart+nStates-1;
+xGPS = yk(gpsIdxStart:gpsIdxEnd, :);
 
+rxIdxStart = gpsIdxEnd+1;
+xRx = yk(rxIdxStart:end,:);
 
-%% Likelihood
-%{
- Assuming deltaT and doppler measurements are independent.
- Assuming dT from the sim rate for band limiting the white noise
- Assuming the truth covariances.
-%}
-%% TODO - decide if this dT is appropriate here???
-Rtrue = ModelParams('rx','V')/ModelParams('dT'); % discrete time band limited noise
+nMeasurements = size(yk,2);
+
+%% Get Measurement Covariance
+%% TODO - decide if this dT is appropriate here??? - ALSO need to change this in measurementModel.m
+% discrete time band limited noise (emit rate in Hz, hence multiplication
+Rtrue = ModelParams('rx','V')/ModelParams('dT'); 
 if ~fIncludeTimeDelay
     Rtrue = Rtrue(1,1); % pull out doppler covariance only
 end
 
-% Get raw joint distribution probability
-p = mvnpdf(yk,yHat,Rtrue); % y_k ~ N(h(x_k), Rtrue)
+%% Process all measurements as if they were IID
+p = 1;
+for iMeas = 1:nMeasurements
+    p = p * getSingleMeasProbability(y(:,iMeas), xGPS(:,iMeas), xk, ...
+        xRx(:,iMeas), Rtrue, const);
+end
+end
 
-% apply doppler threshold correction if applicable
-if fUseDopplerThreshold    
-    if abs(yk(1)) <= fDThreshold
-        % If inside the failed detection gate --> then get 0 likelihood
-        p = 0;
-    else
+%% Function to get likelihood for a single measurement
+function p = getSingleMeasProbability(yk, xGPS, xDebris, xRx, Rtrue, const)
+    fIncludeTimeDelay = size(Rtrue,1) == 2; % True if Rtrue is 2x2
+    
+    fT = const.gps.L1freq;
+    fDThreshold = const.rx.dopplerThreshold;
+    fUseDopplerThreshold = const.rx.fImplementDopplerThresholdGating;
+
+    %% Get Estimated yk = h(xk)
+    fTruthModel = true;
+    yHat = measurementModel(fT, xGPS, xDebris, xRx, fIncludeTimeDelay, fTruthModel);
+    
+    %% Likelihood
+    %{
+     Assuming deltaT and doppler measurements are independent.
+     Assuming dT from the sim rate for band limiting the white noise
+     Assuming the truth covariances.
+    %}
+   
+    % Get raw joint distribution probability
+    p = mvnpdf(yk,yHat,Rtrue); % y_k ~ N(h(x_k), Rtrue)
+
+    %% TODO - should we adjust gaussian pdf so that dT can't be less than zero?
+    
+    % apply doppler threshold correction if applicable
+    if fUseDopplerThreshold    
         % Renormalise to account for no detection window of doppler
         % measurements. 
         cdfValues = cdf('Normal',[-fDThreshold, fDThreshold], yHat(1), Rtrue(1,1));
         pNoDetection = cdfValues(2) - cdfValues(1); 
-
+    
         p = p / (1-pNoDetection); % Rescale the probabilities based on lost mass    
     end
-end
-
 end

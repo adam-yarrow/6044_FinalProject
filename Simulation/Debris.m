@@ -14,6 +14,7 @@ classdef Debris < handle
         W; % continuous time process noise intensity
         Sw; % Cholesky decopy of W
         nProcessNoiseStates;
+        processNoise; % Storage for process noise vector
 
         % Properties
         id;
@@ -35,6 +36,7 @@ classdef Debris < handle
             obj.W = obj.debrisParams.W;
             obj.Sw = chol(obj.W,'lower');
             obj.nProcessNoiseStates = size(obj.W,1);
+            obj.processNoise = zeros(ModelParams('nStates'),1);
         end
 
         %{
@@ -46,9 +48,9 @@ classdef Debris < handle
                 % AWGN: Gamma maps process noise to states (accel only
                 % typically). Sq is the square root of Qapprox. Zero mean
                 % gaussian noise.
-                processNoise = obj.debrisParams.gamma * obj.Sw * ...
+                obj.processNoise = obj.debrisParams.gamma * obj.Sw * ...
                                randn(obj.nProcessNoiseStates,1);
-                obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT, processNoise);
+                obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT, obj.processNoise);
             else
                 obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT);
             end
