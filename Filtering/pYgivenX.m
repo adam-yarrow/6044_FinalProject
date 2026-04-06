@@ -60,7 +60,7 @@ function p = getSingleMeasProbability(yk, xGPS, xDebris, xRx, Rtrue, const)
 
     %% Get Estimated yk = h(xk)
     fTruthModel = true;
-    yHat = measurementModel(fT, xGPS, xDebris, xRx, fIncludeTimeDelay, fTruthModel);
+    yHat = measurementModel(fT, xGPS, xDebris, xRx, fIncludeTimeDelay, fTruthModel,const);
     
     %% Likelihood
     %{

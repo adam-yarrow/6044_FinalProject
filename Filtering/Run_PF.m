@@ -18,6 +18,7 @@ function [pf] = Run_PF(Np, simData, P0, mu0)
     
     %% Data Storage
     pf = struct();
+    pf.t = [0, gpsPacketTimes];
     pf.x = NaN(const.nStates, Np, nTimes);   
     pf.w = NaN(Np, nTimes);
     pf.wNormalized = NaN(Np,nTimes);
@@ -34,7 +35,7 @@ function [pf] = Run_PF(Np, simData, P0, mu0)
     %% Propagate Particles
     prevGPStime = 0;
     t0 = tic();
-    wb = progressBar(1,nTimes,t0,[]);
+    wb = progressBar(1,nTimes,t0,[],'Running PF');
     for k = 2:nTimes % Matlab indexing makes this interesting
         kt1 = k - 1;
 

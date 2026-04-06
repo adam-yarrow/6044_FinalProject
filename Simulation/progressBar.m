@@ -1,4 +1,4 @@
-function state = progressBar(i, n, t_start, state)
+function state = progressBar(i, n, t_start, state, name)
 %PROGRESS_BAR  Waitbar with derivative-based ETA.
 %   state = progress_bar(i, n, t_start, state)
 %
@@ -12,6 +12,10 @@ function state = progressBar(i, n, t_start, state)
 
   now = toc(t_start);
 
+  if nargin < 5
+      name = 'Progress';
+  end
+
   %% ── initialise on first call ────────────────────────────────────────────
   if isempty(state)
     state.times  = zeros(1, WINDOW);
@@ -19,7 +23,7 @@ function state = progressBar(i, n, t_start, state)
     state.count  = 0;
     state.t_prev = now;
     state.wb     = waitbar(0, 'Starting...', ...
-                     'Name', 'Progress', ...
+                     'Name', name, ...
                      'CreateCancelBtn', 'setappdata(gcbf,''cancelling'',1)');
     setappdata(state.wb, 'cancelling', 0);
     return

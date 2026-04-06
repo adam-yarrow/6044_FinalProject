@@ -47,7 +47,7 @@ function plotSimulation(simData, SKIP, fPlotTxRx)
 
     % Colour palette
     COL_GPS    = [0.2  0.8  1.0];   % cyan-blue
-    COL_DEBRIS = [1.0  0.4  0.1];   % orange
+    COL_DEBRIS = [1.0  0.4  0.1];   % orangecl
     COL_RX     = [0.4  1.0  0.4];   % green
     COL_LINK_GD = [0.0  0.0  0.0];  % black  GPS->Debris
     COL_LINK_DR = [1.0  0.3  0.8];  % magenta Debris->Rx

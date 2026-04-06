@@ -61,7 +61,7 @@ const.clutter.fClutter = false; % clutter on/off
 
 
 %% Filtering parameters
-const.est.pf.covInflationSF = 1; % Hopes and prayers?
+const.est.pf.covInflationSF = 1; % Scale factor that is applied to Rtrue in the PF model to help fusion events to occur
 
 
 
