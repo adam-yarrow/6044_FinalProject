@@ -1,4 +1,4 @@
-function h_k1 = h_batch_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, c, dT, processNoise)
+function h_k1 = h_batch_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, dT)
     
     % Inputs:
     % tk            - [N x 1] time vector
@@ -6,9 +6,7 @@ function h_k1 = h_batch_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, c, dT, pro
     % GPS_x         - [n x N] GPS satellite states over time
     % Receiver_x    - [n x N] receiver states over time
     % ft            - scalar or struct (measurement model parameter/flag)
-    % c             - scalar (speed of light, not directly used here)
     % dT            - scalar (time step for propagation)
-    % processNoise  - [n x n] process noise covariance or model input
     %
     % Output:
     % h_k1          - [N x 1] predicted measurement vector
@@ -30,12 +28,12 @@ function h_k1 = h_batch_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, c, dT, pro
         rx_k  = Receiver_x(:, k);      % [n x 1]
         
         % Compute measurement (assumed scalar output)
-        y_k = measurementModel(ft, gps_k, debris_x, rx_k, false, true);  % [1 x 1]
+        y_k = measurementModel(ft, gps_k, debris_x(:), rx_k, false, true);  % [1 x 1]
         
         % Store measurement
         h_k1(k) = y_k;
         
         % Propagate debris state forward
-        debris_x = OrbitalDynamics(tk(k), debris_x, dT, processNoise);   % [n x 1]
+        debris_x = OrbitalDynamics(tk(k), debris_x, dT);   % [n x 1]
     end
 end

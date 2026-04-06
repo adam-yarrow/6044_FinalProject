@@ -40,7 +40,7 @@ while ~fConverged
     y_k = h(x0);
     H_k = H(x0);
     residuals_k = (y - y_k);
-    dx = inv(H_k'*Rinv*H_k)*H_k'*Rinv*residuals_k;
+    dx = (H_k' * Rinv * H_k) \ (H_k' * Rinv * residuals_k);
     Jcurr = residuals_k'*Rinv*residuals_k;
 
     % Alpha Updates

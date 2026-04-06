@@ -1,7 +1,8 @@
 clc; clear all;
 
 % Define variables
-syms x y x_dot y_dot real
+syms x x_dot y y_dot real
+debris_state = [x; x_dot; y; y_dot];
 pd = [x; y];
 vd = [x_dot; y_dot];
 
@@ -12,7 +13,9 @@ vg = [xg_dot; yg_dot];
 vr = [xr_dot; yr_dot];
 
 % Calculate Measurement Model and Jacobian
-Measurement_Model = -(fT/c)*(((vg-vd)'*((pd-pg)/norm(pd-pg))) + ((vd-vr)'*((pr-pd)/norm(pr-pd))));
+Vgd = ((vd - vg)' * (pd - pg)) / norm(pd - pg);
+Vdr = ((vr - vd)' * (pr - pd)) / norm(pr - pd);
+Measurement_Model = -(fT/c)*((Vgd) + (Vdr));
 Jac_H = jacobian(Measurement_Model, [x, x_dot, y, y_dot]);
 
 disp('Symbolic Jacobian:');
