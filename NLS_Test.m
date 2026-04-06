@@ -6,23 +6,24 @@ nlsOptions = struct();
 nlsOptions.maxIterations = 100;
 nlsOptions.JnlsRelTol = 1E-8; %1E-16
 nlsOptions.x0Tol = 1E-6;
-nlsOptions.maxAlphaIterations = 30;
-nlsOptions.alphaRelTol = 1E-3; % Relative change between estimates of optimal alpha that triggers convergence
+nlsOptions.maxAlphaIterations = 50;
+nlsOptions.alphaRelTol = 1E-4; % Relative change between estimates of optimal alpha that triggers convergence
 nlsOptions.minAlpha = 1E-10;
-nlsOptions.fAlphaGoldenSearch = false;
+nlsOptions.fAlphaGoldenSearch = true;
 nlsOptions.alphaSF = 0.5;
 
 %% NLS Inputs Definition
 
 NLS_Params = ModelParams();
-endTime = 0.1;
+endTime = 10;
+NLS_Params.rx.fImplementDopplerThresholdGating = false;
 
 % IC for GPS, Rx & Debris
 thetaRx = linspace(0,2*pi,NLS_Params.rx.nRx);
 thetaGPS = linspace(0,2*pi,NLS_Params.gps.nSatellites);
 debris_x0_true = createCircularOrbitIC(NLS_Params.debris.altitude,0);
 
-debris_x0 = debris_x0_true; %+ randn(size(debris_x0_true)).*[10;0.001;10;0.001];
+debris_x0 = debris_x0_true;% + randn(size(debris_x0_true)).*[10;0.001;10;0.001];
 
 simData = Simulation(thetaGPS, thetaRx, debris_x0_true, endTime);
 
@@ -42,7 +43,7 @@ dT = NLS_Params.dT;
 processNoise = NLS_Params.debris.W;
    
 H_NLS = @(debris_x) compute_H_wrapper(tk, debris_x, GPS_x, Receiver_x, ft, c, dT);
-h_NLS = @(debris_x) h_batch_wrapper(tk, debris_x, GPS_x, Receiver_x, ft, dT);
+h_NLS = @(debris_x) h_batch_wrapper(tk, debris_x, GPS_x, Receiver_x, ft, dT, NLS_Params);
 
 %% NLS Test Run
 
