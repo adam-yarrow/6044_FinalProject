@@ -1,4 +1,4 @@
-function y = measurementModel(fT, xGPS, xDebris, xRx, fIncludeTimeDelay, fTruthModel)
+function y = measurementModel(fT, xGPS, xDebris, xRx, fIncludeTimeDelay, fTruthModel, const)
 %{
     xGPS = state of GPS
     xDebris = state of Debris
@@ -7,11 +7,8 @@ function y = measurementModel(fT, xGPS, xDebris, xRx, fIncludeTimeDelay, fTruthM
     fT = GPS transmission frequency
 %}
 
-if nargin < 6
-    fTruthModel = true;
-end
 
-cKmPerS = ModelParams('c');
+cKmPerS = const.c;
 
 %% Doppler Shift
 % Earth frame quantities
@@ -37,13 +34,13 @@ if fIncludeTimeDelay
     % NOTE: this time of flight estimate does not account for transmission
     % time. However, the time we record as the true transmission time is
     % correct
-    y(2,1) =  (abs(Pd - Pg) + abs(Pr - Pd)) / cKmPerS;
+    y(2,1) =  (norm(Pd - Pg) + norm(Pr - Pd)) / cKmPerS;
 end
 
 %% Noise Model
 if ~fTruthModel
     % Static Gaussian Noise Model (Ref: Ristic Ch8)
-    Rtrue = ModelParams('rx','V')/ModelParams('dT'); % discrete time band limited noise
+    Rtrue = const.rx.V/const.dT; % discrete time band limited noise
     
     %% TODO - need to check if my constant dT approach is correct
     S = chol(Rtrue,'lower');    
@@ -62,13 +59,12 @@ if ~fTruthModel
 end
 
 %% Doppler Detection Threshold
-%% TODO - do we handle this in the likelihood model or HERE?
-% if ModelParams('rx','fImplementDopplerThresholdGating')
-%     % If doppler measurement is below the threshold throw away all
-%     % measurements because they can't be distinguished from real GPS
-%     % measurements
-%     if abs(y(1,1)) < ModelParams('rx','dopplerThreshold')
-%         y = [];
-%     end
-% end
+if const.rx.fImplementDopplerThresholdGating
+    % If doppler measurement is below the threshold throw away all
+    % measurements because they can't be distinguished from real GPS
+    % measurements
+    if abs(y(1,1)) < const.rx.dopplerThreshold
+        y = [];
+    end
+end
 end

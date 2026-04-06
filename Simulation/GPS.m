@@ -27,7 +27,7 @@ classdef GPS < handle
             obj.emitRate = gpsParams.emitRate;
             obj.L1 = gpsParams.L1freq; % Hz 
             obj.dT = ModelParams('dT');
-            obj.clockCountsSinceLastEmit = 1/obj.emitRate/obj.dT;
+            obj.clockCountsSinceLastEmit = 0;
 
             % TODO - work out if want to use L1 or CA code? which one gets
             % doppler shifted.

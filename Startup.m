@@ -4,3 +4,4 @@ addpath('SavedData\');
 addpath('Linearization\');
 addpath('Testing\');
 addpath('Jacobians\');
+addpath('Plotting\');

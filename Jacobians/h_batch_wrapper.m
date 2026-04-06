@@ -19,7 +19,7 @@ function h_k1 = h_batch_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, dT)
 
     % Preallocate output
     h_k1 = zeros(N, 1);                % [N x 1]
-    
+    const = ModelParams();
     % Time loop
     for k = 1:N
         
@@ -28,7 +28,11 @@ function h_k1 = h_batch_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, dT)
         rx_k  = Receiver_x(:, k);      % [n x 1]
         
         % Compute measurement (assumed scalar output)
+<<<<<<< HEAD
         y_k = measurementModel(ft, gps_k, debris_x(:), rx_k, false, true);  % [1 x 1]
+=======
+        y_k = measurementModel(ft, gps_k, debris_x, rx_k, false, true, const);  % [1 x 1]
+>>>>>>> origin/main
         
         % Store measurement
         h_k1(k) = y_k;

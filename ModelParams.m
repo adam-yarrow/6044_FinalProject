@@ -27,14 +27,14 @@ else
 end
 
 % GPS Parameters
-const.gps.emitRate = 1; % Hz
+const.gps.emitRate = 0.01; % Hz
 const.gps.L1freq = 1575.42E6; % Hz 
 const.gps.altitude = 20180; % km
 const.gps.nSatellites = 31;
 
 % Debris Parameters
 const.debris.altitude = 1000; % km
-const.debris.fProcessNoise = false;
+const.debris.fProcessNoise = true;
 accelProcessNoiseStdDev = 1E-6; % km/s^2 - from: Fig. 3.1 of "Satellite Orbits - Models Methods Applications" by Montenbruk and Gill
 const.debris.W = diag([accelProcessNoiseStdDev^2,accelProcessNoiseStdDev^2]); % (km/s^2)^2
 const.debris.gamma = [0, 0;
@@ -51,6 +51,7 @@ const.rx.pDetection = 1.0; % Probability of detection
 const.rx.fImplementDopplerThresholdGating = true;
 
 dopplerMeasStdDev = sqrt(30); % Hz - see paper by Kassas and Khairallah, 2023
+%% TODO - this seems way too small
 timeOfFlightStdDev =  sqrt(3E-16); % s (TODO MAYBE too small, could also do a range based sigma estimate)
 const.rx.V = diag([dopplerMeasStdDev^2; timeOfFlightStdDev^2]); % doppler (Hz)^2, timeDelay (s)^2
 
@@ -60,9 +61,7 @@ const.clutter.fClutter = false; % clutter on/off
 
 
 %% Filtering parameters
-% const.est.pf.R = const.rx.V/const.dT; % TODO - maybe this is different?
-
-
+const.est.pf.covInflationSF = 10; % Scale factor that is applied to Rtrue in the PF model to help fusion events to occur
 
 
 %% Pull out specific parameter if required
