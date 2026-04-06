@@ -8,6 +8,9 @@ function plotPF_Results(simData, pfResults)
     %% States Plot - MMSE and covariance 
 
 
+    %% Animated Histogram of Weights vs Time
+    plotWeightsAnimation(pfResults);
+
     %% Error Plot - Ground Truth - Estimate + covariance bounds
     sigmaLevel = 2;
     plotErrors(simData, pfResults, const, sigmaLevel);
@@ -20,6 +23,26 @@ function plotPF_Results(simData, pfResults)
 end
 
 %% Helper Functions
+function plotWeightsAnimation(pfResults)
+    figure('Name','PF Weights Animation');
+    hWeights = histogram(NaN);
+        
+    % Plot settings
+    xlabel('Particle Weights');
+    ylabel('Counts');
+    grid('on');
+    xlim([0, max(pfResults.w,[],'all')]);
+    
+
+    for iTime = 1:size(pfResults.x,3)
+        hWeights.Data = pfResults.w(:,iTime);
+        drawnow;  
+        pause(0.25);
+        title(sprintf('Particle Weights - k = %i',iTime));
+    end
+end
+
+
 function plotErrors(simData, pfResults, const, sigmaLevel)
     
     figure('Name','State Errors');
@@ -70,6 +93,8 @@ function plotAnimatedStates(simData, pfResults, const)
             max(simData.truth.debris(iState,:))]);
         legend(ax(iState));
     end
+    
+    sgtitle('Particle States Vs Truth Debris States');
 
     for iTime = 1:size(pfResults.x,3)
         for iState = 1:const.nStates
@@ -82,6 +107,5 @@ function plotAnimatedStates(simData, pfResults, const)
     end
 
 
-    sgtitle('Particle States Vs Truth Debris States');
 
 end

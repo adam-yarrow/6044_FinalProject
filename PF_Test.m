@@ -1,6 +1,7 @@
 if ~exist('simData','var')
     simData = GenerateSimData(false);
 end
+save('SavedData\simData_halfOrbit.mat','simData');
 
 params = ModelParams();
 mu0 = createCircularOrbitIC(params.debris.altitude,0);
@@ -9,4 +10,4 @@ Np = 1000;
 
 pfResults = Run_PF(Np, simData, P0, mu0);
 
-% plotPF_Results(simData,pfResults);
+plotPF_Results(simData,pfResults);

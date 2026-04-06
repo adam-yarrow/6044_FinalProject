@@ -27,7 +27,7 @@ else
 end
 
 % GPS Parameters
-const.gps.emitRate = 1; % Hz
+const.gps.emitRate = 0.01; % Hz
 const.gps.L1freq = 1575.42E6; % Hz 
 const.gps.altitude = 20180; % km
 const.gps.nSatellites = 31;
