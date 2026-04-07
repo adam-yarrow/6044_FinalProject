@@ -11,4 +11,4 @@ xRx = [0,0,0,0]';
 fIncludeTimeDelay = false;
 
 
-y = measurementModel(fT, xGPS, xDebris, xRx, fIncludeTimeDelay, ModelParams())
+y = measurementModel(fT, xGPS, xDebris, xRx, fIncludeTimeDelay, true, ModelParams())

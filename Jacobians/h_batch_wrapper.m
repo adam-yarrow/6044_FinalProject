@@ -28,7 +28,7 @@ function h_k1 = h_batch_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, dT)
         rx_k  = Receiver_x(:, k);      % [n x 1]
         
         % Compute measurement (assumed scalar output)
-        y_k = measurementModel(ft, gps_k, debris_x, rx_k, false, true, const);  % [1 x 1]
+        y_k = measurementModel(ft, gps_k, debris_x, rx_k, false, true, true, const);  % [1 x 1]
         
         % Store measurement
         h_k1(k) = y_k;
