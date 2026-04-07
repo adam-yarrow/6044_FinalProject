@@ -21,15 +21,19 @@ function H_k1 = compute_H_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, c, dT)
     for k = 1:length(tk)
         
         if tk(k) > t_current
-        debris_x = OrbitalDynamics(t_current, debris_x, tk(k) - t_current);
+        debris_x = OrbitalDynamics(t_current, debris_x, tk(k) - t_current)';
         t_current = tk(k);
         end
-        
+
         % H_k: [1 x n] measurement Jacobian at current state
         H_k = compute_H_matrix(debris_x(:), GPS_x(:,k), Receiver_x(:,k), ft, c);
 
+        dt_k = 0;
+        if k > 1
+            dt_k = tk(k) - tk(k-1);
+        end
         % F_k1: [n x n] system Jacobian
-        F_k1 = compute_F_matrix(debris_x, dT);
+        F_k1 = compute_F_matrix(debris_x, dt_k);
 
         % Phi_k1: [n x n] propagated STM
         Phi_k1 = F_k1 * Phi_k1;
@@ -38,7 +42,7 @@ function H_k1 = compute_H_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, c, dT)
         H_k1(k,:) = H_k * Phi_k1;
 
         % debris_x: [n x 1] propagate state forward
-        debris_x = OrbitalDynamics(tk(k), debris_x, dT);
+        %debris_x = OrbitalDynamics(tk(k), debris_x, dT);
 
     end
 

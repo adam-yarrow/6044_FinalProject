@@ -24,7 +24,7 @@ function h_k1 = h_batch_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, dT, const)
     for k = 1:N
         
         if tk(k) > t_current
-        debris_x = OrbitalDynamics(t_current, debris_x, tk(k) - t_current);
+        debris_x = OrbitalDynamics(t_current, debris_x, tk(k) - t_current)';
         t_current = tk(k);
         end
         
@@ -46,6 +46,6 @@ function h_k1 = h_batch_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, dT, const)
         end
 
         % Propagate debris state forward
-        debris_x = OrbitalDynamics(tk(k), debris_x, dT);   % [n x 1]
+        %debris_x = OrbitalDynamics(tk(k), debris_x, dT);   % [n x 1]
     end
 end

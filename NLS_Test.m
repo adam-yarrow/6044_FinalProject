@@ -1,5 +1,5 @@
 clear all; close all; clc
-rng(0);
+%rng(0);
 
 %% Options Struct for NLS Solver
 nlsOptions = struct();
@@ -23,7 +23,7 @@ thetaRx = linspace(0,2*pi,NLS_Params.rx.nRx);
 thetaGPS = linspace(0,2*pi,NLS_Params.gps.nSatellites);
 debris_x0_true = createCircularOrbitIC(NLS_Params.debris.altitude,0);
 
-debris_x0 = debris_x0_true;% + randn(size(debris_x0_true)).*[10;0.001;10;0.001];
+debris_x0 = debris_x0_true + randn(size(debris_x0_true)).*[100;0.01;100;0.01];
 
 simData = Simulation(thetaGPS, thetaRx, debris_x0_true, endTime);
 
@@ -49,10 +49,14 @@ h_NLS = @(debris_x) h_batch_wrapper(tk, debris_x, GPS_x, Receiver_x, ft, dT, NLS
 
 [x0, P, details] = NLS(debris_x0,h_NLS,H_NLS,y,R_NLS,nlsOptions);
 
+error = (x0 - debris_x0_true);
+disp('Error in Initial State Estimation = ');
+disp(error);
 
 %% Plotting
 
-figure;
+% Plot 1: Estimation of Initial State
+figure('Name', 'Estimation of Initial State');
 labels = {'x','vx','y','vy'};
 
 for i = 1:length(x0)
