@@ -1,4 +1,4 @@
-function [xkp1] = sampleIS_Distribution(xk, dT)
+function [xkp1] = sampleIS_Distribution(xk, dT, debrisParam)
     %{
         Samples the importance sampling distribution for the debris
         problem.
@@ -9,7 +9,6 @@ function [xkp1] = sampleIS_Distribution(xk, dT)
     %}
 
     % Sample Noise
-    debrisParam = ModelParams('debris');
     Sw = chol(debrisParam.W);
     processNoise = debrisParam.gamma * Sw * randn(size(Sw,1),1);
 

@@ -1,4 +1,5 @@
-function y = measurementModel(fT, xGPS, xDebris, xRx, fIncludeTimeDelay, fTruthModel, const)
+function y = measurementModel(fT, xGPS, xDebris, xRx, fIncludeTimeDelay,...
+    fTruthModel, fDopplerThreshold, const)
 %{
     xGPS = state of GPS
     xDebris = state of Debris
@@ -59,7 +60,7 @@ if ~fTruthModel
 end
 
 %% Doppler Detection Threshold
-if const.rx.fImplementDopplerThresholdGating
+if fDopplerThreshold
     % If doppler measurement is below the threshold throw away all
     % measurements because they can't be distinguished from real GPS
     % measurements

@@ -32,10 +32,11 @@ const.gps.L1freq = 1575.42E6; % Hz
 const.gps.altitude = 20180; % km
 const.gps.nSatellites = 31;
 
-% Debris Parameters
-const.debris.altitude = 1000; % km
+% Debris Parameters: Assuming Iridium 33-Cosmos 2251 Collision
+
+const.debris.altitude = 790; % km (average of apogee and perigee  for Iridium 33)
 const.debris.fProcessNoise = true;
-accelProcessNoiseStdDev = 1E-6; % km/s^2 - from: Fig. 3.1 of "Satellite Orbits - Models Methods Applications" by Montenbruk and Gill
+accelProcessNoiseStdDev = 1E-6; % (km/s)^2 - from: Fig. 3.1 of "Satellite Orbits - Models Methods Applications" by Montenbruk and Gill
 const.debris.W = diag([accelProcessNoiseStdDev^2,accelProcessNoiseStdDev^2]); % (km/s^2)^2
 const.debris.gamma = [0, 0;
                       1, 0;
@@ -61,8 +62,9 @@ const.clutter.fClutter = false; % clutter on/off
 
 
 %% Filtering parameters
-const.est.pf.covInflationSF = 10; % Scale factor that is applied to Rtrue in the PF model to help fusion events to occur
-
+const.est.pf.covInflationSF = 1; % Scale factor that is applied to Rtrue in the PF model to help fusion events to occur
+% TODO - consider this linearization of Q vs current ODE45 approach
+% const.est.pf.fUseLinearisedQ = true; % Switch that changes IS distribution q to use linearized approach vs ODE45 approach
 
 %% Pull out specific parameter if required
 nArgs = length(varargin);
