@@ -1,4 +1,4 @@
-function [pf] = Run_PF(Np, simData, P0, mu0)
+function [pf] = Run_PF(type, Np, simData, P0, mu0)
     %{
         Runs a SIR PF with inputs:
             Np = number of particles to run
@@ -18,10 +18,12 @@ function [pf] = Run_PF(Np, simData, P0, mu0)
     
     %% Data Storage
     pf = struct();
+    pf.Np = Np;
     pf.t = [0, gpsPacketTimes];
     pf.x = NaN(const.nStates, Np, nTimes);   
     pf.w = NaN(Np, nTimes);
     pf.wNormalized = NaN(Np,nTimes);
+    pf.Ness = NaN(nTimes);
 
     pf.xMMSE = NaN(const.nStates, nTimes);
     pf.xCov = NaN(const.nStates, const.nStates, nTimes);
@@ -52,9 +54,17 @@ function [pf] = Run_PF(Np, simData, P0, mu0)
             const.est.pf.processNoiseInflationSF); % Transition distribution
 
         % Run PF
-        [pf.x(:,:,k), pf.wNormalized(:,k), est_k,  pf.w(:,k)] = ...
-            SIR_PF(pf.x(:,:,kt1), pf.wNormalized(:,kt1), yk, q);
+        switch lower(type)
+            case 'sir'
+                 [pf.x(:,:,k), pf.wNormalized(:,k), est_k,  pf.w(:,k), pf.Ness(k)] = ...
+                    SIR_PF(pf.x(:,:,kt1), pf.wNormalized(:,kt1), yk, q);
 
+            case 'rpf'
+                 [pf.x(:,:,k), pf.wNormalized(:,k), est_k,  pf.w(:,k), pf.Ness(k)] = ...
+                    RPF(pf.x(:,:,kt1), pf.wNormalized(:,kt1), yk, q, ...
+                            const.est.pf.NessTol);
+        end
+       
         % Extract Estimates
         pf.xMMSE(:,k) = est_k.MMSE;
         pf.xCov(:,:,k) = est_k.cov;

@@ -7,6 +7,14 @@ function plotPF_Results(simData, pfResults)
 
     %% States Plot - MMSE and covariance 
 
+    %% NESS
+    figure('Name','Number of Effective Particles');
+    plot(pfResults.t, pfResults.Ness,'r','DisplayName','Ness');
+    grid on;
+    xlabel('Time (s)');
+    ylabel('Ness');
+    yline(pfResults.Np,'k--','DisplayName','Number of Particles');
+    title('Number of Effective Particles Vs Time');
 
     %% Animated Histogram of Weights vs Time
     % plotWeightsAnimation(pfResults);

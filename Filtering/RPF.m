@@ -1,7 +1,10 @@
-function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness] = SIR_PF(x_k, w_k, y_kp1, q)
+function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness] = RPF(x_k, w_k, y_kp1, q, ...
+                                                    effectiveParticlesTol)
 %{
+    Regularized PF
+    
     x_k = nStates x N particles
-    w_k = N x 1 weights, unused because renormalize each loop
+    w_k = N x 1 weights
     y_kp1 = measurements
     q = transition distribution function q = f(x_k) = p(x_kp1|x_k)
 %}
@@ -31,8 +34,8 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness] = SIR_PF(x_k, w_k, y_kp1, q
         % Draw a single sample from q(xkp1|xk,i) 
         x_kp1(:,iParticle) = q(x_k(:,iParticle));
 
-        % Get a new w_k = p(z_kp1 | x_kp1)
-        w_kp1(iParticle) = pYgivenX(x_kp1(:,iParticle), y_kp1, const, R) * w_k(iParticle);
+        % Get a new w_kp1 = p(z_kp1 | x_kp1)*w_k
+        w_kp1(iParticle) = pYgivenX(x_kp1(:,iParticle), y_kp1, const, R)*w_k(iParticle);
     end
 
     % Normalize weights
@@ -57,14 +60,17 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness] = SIR_PF(x_k, w_k, y_kp1, q
     [~, mapIdx] = max(w_kp1_Normalized); % Find argmax over all particles
     est.MAP = x_kp1(:,mapIdx);
 
-    % Effective sample size
+    %% Resampling
     Ness = calcEffectiveSS(w_kp1_Normalized,N);
 
-    % Resampling - draw new particles from approx posterior given by
-    % w_kp1_Normalized = p(x_k+1 | Y_1:k+1)
-    indicesToSampleFrom = randsample(1:N,N,true,w_kp1_Normalized);
-    x_kp1 = x_kp1(:,indicesToSampleFrom);
-    % Uniform weights after resampling
-    w_kp1_Normalized = 1/N; 
-        
+    if Ness < effectiveParticlesTol
+        %% TODO - add perturbations here
+
+        % Standard Resampling - draw new particles from approx posterior given by
+        % w_kp1_Normalized = p(x_k+1 | Y_1:k+1)
+        indicesToSampleFrom = randsample(1:N,N,true,w_kp1_Normalized);
+        x_kp1 = x_kp1(:,indicesToSampleFrom);
+        % Uniform weights after resampling
+        w_kp1_Normalized = 1/N; 
+    end
 end
