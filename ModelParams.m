@@ -8,13 +8,14 @@ const.rEarth = 6378; % km
 const.omegaEarth = 2*pi/86400; % rad/s
 const.mu = 398600; % km^3/s^2
 const.c = 299792.458; % km/s
+const.karmanLine = 100; % km
 
 const.nStates = 4; 
 const.stateNames = {'x','xDot','y','yDot'};
 const.stateUnits = {'km','km/s','km','km/s'};
 
 % Meas Model
-const.fIncludeTimeOfFlight = false;
+const.fIncludeTimeOfFlight = true;
 const.fTruthMeasModel = false;
 if (const.fIncludeTimeOfFlight)
     const.measNames = {'fDoppler','timeOfFlight'};
@@ -33,7 +34,7 @@ const.gps.altitude = 20180; % km
 const.gps.nSatellites = 31;
 
 % Debris Parameters: Assuming Iridium 33-Cosmos 2251 Collision
-
+% const.debris.meanDeltaV = 55.8; % m/s
 const.debris.altitude = 790; % km (average of apogee and perigee  for Iridium 33)
 const.debris.fProcessNoise = true;
 accelProcessNoiseStdDev = 1E-6; % (km/s)^2 - from: Fig. 3.1 of "Satellite Orbits - Models Methods Applications" by Montenbruk and Gill
@@ -48,7 +49,6 @@ const.rx.nRx = 13; % Every 30 deg
 const.rx.dopplerThreshold = calcDopplerThreshold(const.gps.L1freq,...
                                                  const.rEarth, const.gps.altitude,...
                                                  const.mu, const.c); % |Doppler frequency| in Hz you can't detect
-const.rx.pDetection = 1.0; % Probability of detection
 const.rx.fImplementDopplerThresholdGating = true;
 
 dopplerMeasStdDev = sqrt(30); % Hz - see paper by Kassas and Khairallah, 2023
@@ -56,13 +56,10 @@ dopplerMeasStdDev = sqrt(30); % Hz - see paper by Kassas and Khairallah, 2023
 timeOfFlightStdDev =  sqrt(3E-16); % s (TODO MAYBE too small, could also do a range based sigma estimate)
 const.rx.V = diag([dopplerMeasStdDev^2; timeOfFlightStdDev^2]); % doppler (Hz)^2, timeDelay (s)^2
 
-% Clutter Parameters
-const.clutter.fClutter = false; % clutter on/off
-% TODO - actually implement with poisson model if deemed required
-
-
 %% Filtering parameters
-const.est.pf.covInflationSF = 1; % Scale factor that is applied to Rtrue in the PF model to help fusion events to occur
+const.est.pf.measNoiseInflationSF = 10; % Scale factor that is applied to Rtrue in the PF model to help fusion events to occur
+const.est.pf.processNoiseInflationSF = 1; % Scale factor that is applied to Qtrue in the PF model to help fusion events to occur
+
 % TODO - consider this linearization of Q vs current ODE45 approach
 % const.est.pf.fUseLinearisedQ = true; % Switch that changes IS distribution q to use linearized approach vs ODE45 approach
 

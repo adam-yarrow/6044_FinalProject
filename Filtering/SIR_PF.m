@@ -11,13 +11,28 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1] = SIR_PF(x_k, w_k, y_kp1, q)
 
     const = ModelParams();
 
+    % Check if measurement has time of flight included
+    fIncludeTimeDelay = false;
+    if size(y_kp1,1) == 10 % e.g. 4 x GPS states + 4 x Rx states + yDoppler + yDt
+        fIncludeTimeDelay = true;
+    end
+
+    %% Get Measurement Covariance
+    %% TODO - decide if this dT is appropriate here??? - ALSO need to change this in measurementModel.m
+    % discrete time band limited noise (emit rate in Hz, hence multiplication
+    Rtrue = const.rx.V / const.dT; 
+    if ~fIncludeTimeDelay
+        Rtrue = Rtrue(1,1); % pull out doppler covariance only
+    end
+    R = Rtrue * const.est.pf.measNoiseInflationSF;
+
     % Sample q(x_kp1|x_k,y_kp1) to get new x_kp1^i
     for iParticle = 1:N
         % Draw a single sample from q(xkp1|xk,i) 
         x_kp1(:,iParticle) = q(x_k(:,iParticle));
 
         % Get a new w_k = p(z_kp1 | x_kp1)
-        w_kp1(iParticle) = pYgivenX(x_kp1(:,iParticle), y_kp1, const);
+        w_kp1(iParticle) = pYgivenX(x_kp1(:,iParticle), y_kp1, const, R);
     end
 
     % Normalize weights

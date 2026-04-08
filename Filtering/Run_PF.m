@@ -48,7 +48,8 @@ function [pf] = Run_PF(Np, simData, P0, mu0)
 
         % Wrapper for IS distribution
         dTgps = currentGPStime - prevGPStime;
-        q = @(xk) sampleIS_Distribution(xk, dTgps, const.debris); % Transition distribution
+        q = @(xk) sampleIS_Distribution(xk, dTgps, const.debris, ...
+            const.est.pf.processNoiseInflationSF); % Transition distribution
 
         % Run PF
         [pf.x(:,:,k), pf.wNormalized(:,k), est_k,  pf.w(:,k)] = ...

@@ -79,9 +79,17 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime)
                 simData.meas.xGPS(:,end+1) = rxMsg.gps.x;
                 simData.meas.xRx(:,end+1) = rxMsg.rx.x;
             end
-            
-
+           
             %% TODO - add clutter here (e.g. distribution of other returns)
+        end
+
+        % Check Deorbit Condition
+        % Assuming single piece of debris
+        debrisAltitude = sqrt(simData.truth.debris(1,iTime,1).^2 + ...
+                              simData.truth.debris(3,iTime,1).^2) - params.rEarth;
+        if (debrisAltitude <= params.karmanLine)
+            closeHangingWaitbar();
+            break; % terminate the simulation early if below the karman line (assuming deorbiting)
         end
 
         % Update Progress and check for cancellation

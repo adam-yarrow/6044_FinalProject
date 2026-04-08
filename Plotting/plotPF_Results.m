@@ -9,7 +9,7 @@ function plotPF_Results(simData, pfResults)
 
 
     %% Animated Histogram of Weights vs Time
-    plotWeightsAnimation(pfResults);
+    % plotWeightsAnimation(pfResults);
 
     %% Error Plot - Ground Truth - Estimate + covariance bounds
     sigmaLevel = 2;
@@ -18,7 +18,7 @@ function plotPF_Results(simData, pfResults)
     %% measurements plot around the truth?
 
     %% States Plot - Animation with particles
-    plotAnimatedStates(simData, pfResults, const);
+    % plotAnimatedStates(simData, pfResults, const);
     
 end
 
@@ -36,8 +36,8 @@ function plotWeightsAnimation(pfResults)
 
     for iTime = 1:size(pfResults.x,3)
         hWeights.Data = pfResults.w(:,iTime);
-        drawnow;  
-        pause(0.25);
+        drawnow limitrate;  
+        % pause(0.05);
         title(sprintf('Particle Weights - k = %i',iTime));
     end
 end

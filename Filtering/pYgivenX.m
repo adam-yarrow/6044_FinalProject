@@ -1,4 +1,4 @@
-function p = pYgivenX(xk, yk, const)
+function p = pYgivenX(xk, yk, const, R)
 %{
     Likelihood function for a given measurement vector y, given a debris
     state, GPS state and Rx state.
@@ -6,16 +6,11 @@ function p = pYgivenX(xk, yk, const)
     xK = [xDebris];
     yk = measurements vector: 9/10 x Nmeasurements [[yDoppler, yDt, xGPS, xRx]^T, ...]
     const = ModelParams()
+    R = measurement noise covariance to use
 %}
-% Check if measurement has time of flight included
-fIncludeTimeDelay = false;
-nMeasVars = 1;
-if size(yk,1) == 10 % e.g. 4 x GPS states + 4 x Rx states + yDoppler + yDt
-    fIncludeTimeDelay = true;
-    nMeasVars = 2;
-end
 
 nStates = const.nStates;
+nMeasVars = size(R,1);
 
 % Extract relevant states
 y = yk(1:nMeasVars,:); % Actual measurements, not just state truth values
@@ -29,21 +24,11 @@ xRx = yk(rxIdxStart:end,:);
 
 nMeasurements = size(yk,2);
 
-%% Get Measurement Covariance
-%% TODO - decide if this dT is appropriate here??? - ALSO need to change this in measurementModel.m
-% discrete time band limited noise (emit rate in Hz, hence multiplication
-Rtrue = ModelParams('rx','V')/ModelParams('dT'); 
-if ~fIncludeTimeDelay
-    Rtrue = Rtrue(1,1); % pull out doppler covariance only
-end
-
-Rtrue = Rtrue * const.est.pf.covInflationSF;
-
 %% Process all measurements as if they were IID
 p = 1;
 for iMeas = 1:nMeasurements
     p = p * getSingleMeasProbability(y(:,iMeas), xGPS(:,iMeas), xk, ...
-        xRx(:,iMeas), Rtrue, const);
+        xRx(:,iMeas), R, const);
     if p == 0
         % Shortcut for speed
         break;
@@ -52,8 +37,8 @@ end
 end
 
 %% Function to get likelihood for a single measurement
-function p = getSingleMeasProbability(yk, xGPS, xDebris, xRx, Rtrue, const)
-    fIncludeTimeDelay = size(Rtrue,1) == 2; % True if Rtrue is 2x2
+function p = getSingleMeasProbability(yk, xGPS, xDebris, xRx, R, const)
+    fIncludeTimeDelay = size(R,1) == 2; % True if Rtrue is 2x2
     
     fT = const.gps.L1freq;
     fDThreshold = const.rx.dopplerThreshold;
@@ -81,14 +66,14 @@ function p = getSingleMeasProbability(yk, xGPS, xDebris, xRx, Rtrue, const)
     %}
    
     % Get raw joint distribution probability
-    p = mvnpdf(yk,yHat,Rtrue); % y_k ~ N(h(x_k), Rtrue)
+    p = mvnpdf(yk,yHat,R); % y_k ~ N(h(x_k), Rtrue)
     %% TODO - should we adjust gaussian pdf so that dT can't be less than zero?
     
     % apply doppler threshold correction if applicable
     if fUseDopplerThreshold 
         % Renormalise to account for no detection window of doppler
         % measurements. 
-        cdfValues = normcdf([-fDThreshold, fDThreshold], yHat(1), Rtrue(1,1));
+        cdfValues = normcdf([-fDThreshold, fDThreshold], yHat(1), R(1,1));
         pNoDetection = cdfValues(2) - cdfValues(1); 
     
         p = p / (1-pNoDetection); % Rescale the probabilities based on lost mass    
