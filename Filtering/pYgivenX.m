@@ -41,8 +41,6 @@ function p = getSingleMeasProbability(yk, xGPS, xDebris, xRx, R, const)
     fIncludeTimeDelay = size(R,1) == 2; % True if Rtrue is 2x2
     
     fT = const.gps.L1freq;
-    fDThreshold = const.rx.dopplerThreshold;
-    fUseDopplerThreshold = const.rx.fImplementDopplerThresholdGating;
 
     %% Get Estimated yk = h(xk)
     fTruthModel = true;
@@ -50,14 +48,7 @@ function p = getSingleMeasProbability(yk, xGPS, xDebris, xRx, R, const)
     %% TODO - decide if this is appropriate to set fDopplerThresh = false??
     yHat = measurementModel(fT, xGPS, xDebris, xRx, fIncludeTimeDelay, ...
         fTruthModel, fDopplerThresholdActive, const);
-    
-    %% TODO - does this make sense? OR SHould we process this measurement and show it has a tiny probability?
-    % Shortcut if estimated measurement is within the no-detection range
-    if isempty(yHat)
-        p = 0;
-        return
-    end
-
+ 
     %% Likelihood
     %{
      Assuming deltaT and doppler measurements are independent.
@@ -68,14 +59,4 @@ function p = getSingleMeasProbability(yk, xGPS, xDebris, xRx, R, const)
     % Get raw joint distribution probability
     p = mvnpdf(yk,yHat,R); % y_k ~ N(h(x_k), Rtrue)
     %% TODO - should we adjust gaussian pdf so that dT can't be less than zero?
-    
-    % apply doppler threshold correction if applicable
-    if fUseDopplerThreshold 
-        % Renormalise to account for no detection window of doppler
-        % measurements. 
-        cdfValues = normcdf([-fDThreshold, fDThreshold], yHat(1), R(1,1));
-        pNoDetection = cdfValues(2) - cdfValues(1); 
-    
-        p = p / (1-pNoDetection); % Rescale the probabilities based on lost mass    
-    end
 end

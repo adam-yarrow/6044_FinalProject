@@ -17,7 +17,7 @@ function plotPF_Results(simData, pfResults)
     title('Number of Effective Particles Vs Time');
 
     %% Animated Histogram of Weights vs Time
-    % plotWeightsAnimation(pfResults);
+    plotWeightsAnimation(pfResults);
 
     %% Error Plot - Ground Truth - Estimate + covariance bounds
     sigmaLevel = 2;
@@ -44,8 +44,8 @@ function plotWeightsAnimation(pfResults)
 
     for iTime = 1:size(pfResults.x,3)
         hWeights.Data = pfResults.w(:,iTime);
-        drawnow limitrate;  
-        % pause(0.05);
+        drawnow; %limitrate;  
+        pause(0.05);
         title(sprintf('Particle Weights - k = %i',iTime));
     end
 end

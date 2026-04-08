@@ -32,7 +32,7 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness] = SIR_PF(x_k, w_k, y_kp1, q
         x_kp1(:,iParticle) = q(x_k(:,iParticle));
 
         % Get a new w_k = p(z_kp1 | x_kp1)
-        w_kp1(iParticle) = pYgivenX(x_kp1(:,iParticle), y_kp1, const, R) * w_k(iParticle);
+        w_kp1(iParticle) = pYgivenX(x_kp1(:,iParticle), y_kp1, const, R);
     end
 
     % Normalize weights
