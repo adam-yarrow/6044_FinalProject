@@ -63,7 +63,7 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness] = RPF(x_k, w_k, y_kp1, q, .
     %% Resampling
     Ness = calcEffectiveSS(w_kp1_Normalized,N);
 
-    if Ness < effectiveParticlesTol
+    if Ness < effectiveParticlesTol*N
         %% TODO - add perturbations here
 
         % Standard Resampling - draw new particles from approx posterior given by

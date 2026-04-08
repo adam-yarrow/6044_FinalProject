@@ -61,7 +61,7 @@ const.rx.V = diag([dopplerMeasStdDev^2; timeOfFlightStdDev^2]); % doppler (Hz)^2
 %% Filtering parameters
 const.est.pf.measNoiseInflationSF = 10; % Scale factor that is applied to Rtrue in the PF model to help fusion events to occur
 const.est.pf.processNoiseInflationSF = 10; % Scale factor that is applied to Qtrue in the PF model to help fusion events to occur
-const.est.pf.NessTol = 1; % 0 to 1, proportion of Np to resample at
+const.est.pf.NessTol = 0.5; % 0 to 1, proportion of Np to resample at
 
 % TODO - consider this linearization of Q vs current ODE45 approach
 % const.est.pf.fUseLinearisedQ = true; % Switch that changes IS distribution q to use linearized approach vs ODE45 approach
