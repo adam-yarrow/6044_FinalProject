@@ -1,10 +1,11 @@
 clear all; close all; clc
 %rng(0);
+Startup;
 
 %% Options Struct for NLS Solver
 nlsOptions = struct();
 nlsOptions.maxIterations = 100;
-nlsOptions.JnlsRelTol = 1E-8; %1E-16
+nlsOptions.JnlsRelTol =  1E-8;
 nlsOptions.x0Tol = 1E-6;
 nlsOptions.maxAlphaIterations = 50;
 nlsOptions.alphaRelTol = 1E-4; % Relative change between estimates of optimal alpha that triggers convergence
@@ -15,15 +16,15 @@ nlsOptions.alphaSF = 0.5;
 %% NLS Inputs Definition
 
 NLS_Params = ModelParams();
-endTime = 10;
-NLS_Params.rx.fImplementDopplerThresholdGating = false;
+endTime = 50;
+NLS_Params.rx.fImplementDopplerThresholdGating = true;
 
 % IC for GPS, Rx & Debris
 thetaRx = linspace(0,2*pi,NLS_Params.rx.nRx);
 thetaGPS = linspace(0,2*pi,NLS_Params.gps.nSatellites);
 debris_x0_true = createCircularOrbitIC(NLS_Params.debris.altitude,0);
 
-debris_x0 = debris_x0_true + randn(size(debris_x0_true)).*[100;0.01;100;0.01];
+debris_x0 = debris_x0_true + randn(size(debris_x0_true)).*[10;0.01;0;0.01];
 
 simData = Simulation(thetaGPS, thetaRx, debris_x0_true, endTime);
 
@@ -69,3 +70,7 @@ for i = 1:length(x0)
 end
 
 sgtitle('Initial State Comparison')
+
+nlsDetails = details;
+
+plotNLS(nlsDetails,debris_x0_true,tk,x0,y)

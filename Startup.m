@@ -1,7 +1,7 @@
 addpath('Filtering\');
 addpath('Simulation\');
 addpath('SavedData\');
-addpath('Linearization\');
+%addpath('Linearization\');
 addpath('Testing\');
 addpath('Jacobians\');
 addpath('Plotting\');

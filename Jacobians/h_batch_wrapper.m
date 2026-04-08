@@ -38,11 +38,11 @@ function h_k1 = h_batch_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, dT, const)
         % Store measurement
         h_k1(k) = y_k;
         
-        if isempty(y_k)
-            h_k1(k) = 0;
-        else
-            h_k1(k) = y_k;
-        end
+        % if isempty(y_k)
+        %     h_k1(k) = 0;
+        % else
+        %     h_k1(k) = y_k;
+        % end
 
         % Propagate debris state forward
         %debris_x = OrbitalDynamics(tk(k), debris_x, dT);   % [n x 1]
