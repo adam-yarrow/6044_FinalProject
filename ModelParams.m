@@ -61,9 +61,9 @@ const.rx.V = diag([dopplerMeasStdDev^2; timeOfFlightStdDev^2]); % doppler (Hz)^2
 % const.est.pf.measNoiseInflationSF = 10; % Scale factor that is applied to Rtrue in the PF model to help fusion events to occur
 % const.est.pf.processNoiseInflationSF = 1; % Scale factor that is applied to Qtrue in the PF model to help fusion events to occur
 
-processNoiseInflationSF = 100;
+processNoiseInflationSF = 0.1;
 const.est.pf.processNoiseCov = const.debris.W * processNoiseInflationSF;
-dopplerInflationSF = 10;
+dopplerInflationSF = 50;
 deltaTInflationSF = 100;
 const.est.pf.measNoiseCov = diag([dopplerMeasStdDev^2*dopplerInflationSF;...
                                     timeOfFlightStdDev^2*deltaTInflationSF]);

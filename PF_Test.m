@@ -4,10 +4,12 @@ if ~exist('simData','var')
 end
 % save('SavedData\simData_halfOrbit.mat','simData');
 
+rng(0);
+
 params = ModelParams();
 mu0 = createCircularOrbitIC(params.debris.altitude,params.debris.phaseIC);
-P0 = 1E-10*eye(4); diag([0.01; 0.0001; 0.01; 0.0001]);
-Np = 500;
+P0 =  diag([0.001; 0.0001; 0.001; 0.0001]); 1E-10*eye(4);
+Np = 1000;
 
 % profile on 
 type = 'RPF';
