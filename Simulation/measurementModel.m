@@ -35,13 +35,13 @@ if fIncludeTimeDelay
     % NOTE: this time of flight estimate does not account for transmission
     % time. However, the time we record as the true transmission time is
     % correct
-    y(2,1) =  (norm(Pd - Pg) + norm(Pr - Pd)) / cKmPerS;
+    y(2,1) =  (norm(Pd - Pg) + norm(Pr - Pd)) / cKmPerS * 1E6; % microseconds
 end
 
 %% Noise Model
 if ~fTruthModel
     % Static Gaussian Noise Model (Ref: Ristic Ch8)
-    Rtrue = const.rx.V/const.dT; % discrete time band limited noise
+    Rtrue = const.rx.V/const.dT; % discrete time band limited noise - assuming ADC runs at sim rate
     
     %% TODO - need to check if my constant dT approach is correct
     S = chol(Rtrue,'lower');    

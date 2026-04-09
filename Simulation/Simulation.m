@@ -46,10 +46,15 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime)
     [gpsObjs, rxObjs, debrisObjs] = ...
             buildObjects(simData, params, thetaIC_GPS, thetaIC_Rx, debrisIC);
 
+    %% Set IC into database
+    simData.truth.gps(:,1,:) = getStates(gpsObjs);
+    simData.truth.debris(:,1,:) = getStates(debrisObjs);
+    simData.truth.rx(:,1,:) = getStates(rxObjs);
+
     %% Run Simulation
     t0 = tic();
     wb = progressBar(1,simData.nTimes,t0,[]);
-    for iTime = 1:simData.nTimes
+    for iTime = 2:simData.nTimes
         % Update Dynamics
         simData.truth.gps(:,iTime,:) = updateDynamics(gpsObjs);
         simData.truth.debris(:,iTime,:) = updateDynamics(debrisObjs);
@@ -79,8 +84,6 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime)
                 simData.meas.xGPS(:,end+1) = rxMsg.gps.x;
                 simData.meas.xRx(:,end+1) = rxMsg.rx.x;
             end
-           
-            %% TODO - add clutter here (e.g. distribution of other returns)
         end
 
         % Check Deorbit Condition
@@ -133,6 +136,15 @@ function [gpsMsgs, debrisMsgs, rxMsgs] = getMsgs(simData, gpsObjs, debrisObjs, r
     end
 end
 
+function truthStates = getStates(objects)
+    nObjects = numel(objects);
+    truthStates = NaN(ModelParams('nStates'), nObjects);
+    
+    for iObject = 1:nObjects
+        currentObj = objects{iObject};
+        [truthStates(:,iObject), ~] = currentObj.getState();        
+    end
+end
 
 function truthStates = updateDynamics(objects) % passes objects by reference if handle class
     % Objects = cell array of handle classes that have stepDynamics() and

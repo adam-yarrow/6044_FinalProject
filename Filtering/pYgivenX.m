@@ -1,4 +1,4 @@
-function p = pYgivenX(xk, yk, const, R)
+function p = pYgivenX(xk, yk, const, R, fUseLogSpace)
 %{
     Likelihood function for a given measurement vector y, given a debris
     state, GPS state and Rx state.
@@ -7,7 +7,13 @@ function p = pYgivenX(xk, yk, const, R)
     yk = measurements vector: 9/10 x Nmeasurements [[yDoppler, yDt, xGPS, xRx]^T, ...]
     const = ModelParams()
     R = measurement noise covariance to use
+    fUseLogSpace = flag to turn off or on log probability
 %}
+
+if nargin < 5
+    fUseLogSpace = false;
+end
+
 
 nStates = const.nStates;
 nMeasVars = size(R,1);
@@ -25,13 +31,22 @@ xRx = yk(rxIdxStart:end,:);
 nMeasurements = size(yk,2);
 
 %% Process all measurements as if they were IID
-p = 1;
-for iMeas = 1:nMeasurements
-    p = p * getSingleMeasProbability(y(:,iMeas), xGPS(:,iMeas), xk, ...
-        xRx(:,iMeas), R, const);
-    if p == 0
-        % Shortcut for speed
-        break;
+pVect = NaN(nMeasurements,1);
+if fUseLogSpace
+    p =0;
+else
+    p = 1;
+end
+
+for iMeas = 1:nMeasurements  
+    pVect(iMeas) = getSingleMeasProbability(y(:,iMeas), xGPS(:,iMeas), xk, ...
+            xRx(:,iMeas), R, const);
+
+    % Process in log or linear space
+    if fUseLogSpace
+        p = p + log(pVect(iMeas));
+    else
+        p = p*pVect(iMeas);
     end
 end
 end

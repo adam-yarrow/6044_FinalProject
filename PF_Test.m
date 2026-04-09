@@ -6,8 +6,8 @@ end
 
 params = ModelParams();
 mu0 = createCircularOrbitIC(params.debris.altitude,params.debris.phaseIC);
-P0 = diag([0.01; 0.0001; 0.01; 0.0001]);
-Np = 300;
+P0 = 1E-10*eye(4); diag([0.01; 0.0001; 0.01; 0.0001]);
+Np = 500;
 
 % profile on 
 type = 'RPF';

@@ -1,4 +1,4 @@
-function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness] = RPF(x_k, w_k, y_kp1, q, ...
+function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness, wTot] = RPF(x_k, w_k, y_kp1, q, ...
                                                     effectiveParticlesTol)
 %{
     Regularized PF
@@ -23,11 +23,10 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness] = RPF(x_k, w_k, y_kp1, q, .
     %% Get Measurement Covariance
     %% TODO - decide if this dT is appropriate here??? - ALSO need to change this in measurementModel.m
     % discrete time band limited noise (emit rate in Hz, hence multiplication
-    Rtrue = const.rx.V / const.dT; 
+    R = const.est.pf.measNoiseCov / const.dT; 
     if ~fIncludeTimeDelay
-        Rtrue = Rtrue(1,1); % pull out doppler covariance only
+        R = R(1,1); % pull out doppler covariance only
     end
-    R = Rtrue * const.est.pf.measNoiseInflationSF;
 
     % Sample q(x_kp1|x_k,y_kp1) to get new x_kp1^i
     for iParticle = 1:N

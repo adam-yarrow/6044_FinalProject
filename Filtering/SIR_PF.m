@@ -1,9 +1,11 @@
-function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness] = SIR_PF(x_k, w_k, y_kp1, q)
+function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness, wTot] = SIR_PF(x_k, w_k, y_kp1, q)
 %{
     x_k = nStates x N particles
     w_k = N x 1 weights, unused because renormalize each loop
     y_kp1 = measurements
     q = transition distribution function q = f(x_k) = p(x_kp1|x_k)
+
+    Doing log space weights to avoid underflow issues
 %}
     [nStates, N] = size(x_k);
     x_kp1 = NaN(nStates,N);
@@ -18,13 +20,10 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness] = SIR_PF(x_k, w_k, y_kp1, q
     end
 
     %% Get Measurement Covariance
-    %% TODO - decide if this dT is appropriate here??? - ALSO need to change this in measurementModel.m
-    % discrete time band limited noise (emit rate in Hz, hence multiplication
-    Rtrue = const.rx.V / const.dT; 
+    R = const.est.pf.measNoiseCov / const.dT; 
     if ~fIncludeTimeDelay
-        Rtrue = Rtrue(1,1); % pull out doppler covariance only
+        R = R(1,1); % pull out doppler covariance only
     end
-    R = Rtrue * const.est.pf.measNoiseInflationSF;
 
     % Sample q(x_kp1|x_k,y_kp1) to get new x_kp1^i
     for iParticle = 1:N
@@ -32,16 +31,18 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness] = SIR_PF(x_k, w_k, y_kp1, q
         x_kp1(:,iParticle) = q(x_k(:,iParticle));
 
         % Get a new w_k = p(z_kp1 | x_kp1)
-        w_kp1(iParticle) = pYgivenX(x_kp1(:,iParticle), y_kp1, const, R);
+        fUseLogSpace = true;
+        w_kp1(iParticle) = pYgivenX(x_kp1(:,iParticle), y_kp1, const, R, ...
+            fUseLogSpace);
     end
 
-    % Normalize weights
-    wTot = sum(w_kp1);
-    if (wTot == 0)
+    % Normalize weights (in log space)
+    wTot = LogSumExp(w_kp1);
+    if (wTot == -Inf) %% TODO maybe need to do a large negative number check here???
         error('Particle collapse occured');
     end
 
-    w_kp1_Normalized = w_kp1 ./ wTot;
+    w_kp1_Normalized = exp(w_kp1 - wTot); %w_kp1 ./ wTot;
     w_kp1 = w_kp1_Normalized; % Set this so we can see the correct values
 
     % Estimators
