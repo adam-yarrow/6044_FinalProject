@@ -58,21 +58,16 @@ timeOfFlightStdDev =  sqrt(3E-16)*1E6; % microseconds (TODO MAYBE too small, cou
 const.rx.V = diag([dopplerMeasStdDev^2; timeOfFlightStdDev^2]); % doppler (Hz)^2, timeDelay (s)^2
 
 %% Filtering parameters
-% const.est.pf.measNoiseInflationSF = 10; % Scale factor that is applied to Rtrue in the PF model to help fusion events to occur
-% const.est.pf.processNoiseInflationSF = 1; % Scale factor that is applied to Qtrue in the PF model to help fusion events to occur
-
-processNoiseInflationSF = 0.1;
+processNoiseInflationSF = 1; %0.1;
 const.est.pf.processNoiseCov = const.debris.W * processNoiseInflationSF;
-dopplerInflationSF = 50;
-deltaTInflationSF = 100;
+dopplerInflationSF = 10; 50;
+deltaTInflationSF = 1000; 100;
 const.est.pf.measNoiseCov = diag([dopplerMeasStdDev^2*dopplerInflationSF;...
                                     timeOfFlightStdDev^2*deltaTInflationSF]);
 
 const.est.pf.NessTol = 0.5; % 0 to 1, proportion of Np to resample at
+const.est.pf.rpf_h = 0; 1E-5; % IF zero then just SIR filter with resampling based on Ness tolerance
 
-
-% TODO - consider this linearization of Q vs current ODE45 approach
-% const.est.pf.fUseLinearisedQ = true; % Switch that changes IS distribution q to use linearized approach vs ODE45 approach
 
 %% Pull out specific parameter if required
 nArgs = length(varargin);

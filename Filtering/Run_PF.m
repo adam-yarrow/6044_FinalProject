@@ -23,12 +23,14 @@ function [pf] = Run_PF(type, Np, simData, P0, mu0)
     pf.x = NaN(const.nStates, Np, nTimes);   
     pf.w = NaN(Np, nTimes);
     pf.wNormalized = NaN(Np,nTimes);
-    pf.Ness = NaN(nTimes);
-    pf.wTot = NaN(nTimes);
+    pf.Ness = NaN(nTimes,1);
+    pf.wTot = NaN(nTimes,1);
 
     pf.xMMSE = NaN(const.nStates, nTimes);
     pf.xCov = NaN(const.nStates, const.nStates, nTimes);
     pf.xMAP = NaN(const.nStates, nTimes);
+
+    pf.yMeanInnovErrors = cell(nTimes,1);
 
     %% Prior Distribution
     pf.x(:,:,1) = generateGaussianX_IC(P0, mu0, Np);
@@ -57,15 +59,28 @@ function [pf] = Run_PF(type, Np, simData, P0, mu0)
         % Run PF
         switch lower(type)
             case 'sir'
-                 [pf.x(:,:,k), pf.wNormalized(:,k), est_k,  pf.w(:,k), pf.Ness(k), pf.wTot(k)] = ...
+                 [pf.x(:,:,k), pf.wNormalized(:,k), est_k,  pf.w(:,k), ...
+                     pf.Ness(k), pf.wTot(k), status] = ...
                     SIR_PF(pf.x(:,:,kt1), pf.wNormalized(:,kt1), yk, q);
 
             case 'rpf'
-                 [pf.x(:,:,k), pf.wNormalized(:,k), est_k,  pf.w(:,k), pf.Ness(k), pf.wTot(k)] = ...
-                    RPF(pf.x(:,:,kt1), pf.wNormalized(:,kt1), yk, q, ...
+                 outputs = RPF(pf.x(:,:,kt1), pf.wNormalized(:,kt1), yk, q, ...
                             const.est.pf.NessTol);
+                 pf.x(:,:,k) = outputs.x;
+                 pf.wNormalized(:,k) = outputs.wNormalized;
+                 est_k = outputs.est;
+                 pf.w(:,k) = outputs.w;
+                 pf.Ness(k) = outputs.Ness;
+                 pf.wTot(k) = outputs.wTot;
+                 status = outputs.status;
+                 pf.yMeanInnovErrors{k} = outputs.yInnovMeans;
         end
        
+        if status
+            wb.cancelled = true;
+            break
+        end
+
         % Extract Estimates
         pf.xMMSE(:,k) = est_k.MMSE;
         pf.xCov(:,:,k) = est_k.cov;

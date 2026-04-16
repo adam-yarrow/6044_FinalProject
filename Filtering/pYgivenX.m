@@ -1,4 +1,4 @@
-function p = pYgivenX(xk, yk, const, R, fUseLogSpace)
+function [p, yHat] = pYgivenX(xk, yk, const, R, fUseLogSpace)
 %{
     Likelihood function for a given measurement vector y, given a debris
     state, GPS state and Rx state.
@@ -32,6 +32,7 @@ nMeasurements = size(yk,2);
 
 %% Process all measurements as if they were IID
 pVect = NaN(nMeasurements,1);
+yHat = NaN(nMeasVars,nMeasurements);
 if fUseLogSpace
     p =0;
 else
@@ -39,8 +40,9 @@ else
 end
 
 for iMeas = 1:nMeasurements  
-    pVect(iMeas) = getSingleMeasProbability(y(:,iMeas), xGPS(:,iMeas), xk, ...
-            xRx(:,iMeas), R, const);
+    [pVect(iMeas), yHat(:,iMeas)] = getSingleMeasProbability(y(:,iMeas), ...
+                                        xGPS(:,iMeas), xk, ...
+                                        xRx(:,iMeas), R, const);
 
     % Process in log or linear space
     if fUseLogSpace
@@ -52,7 +54,7 @@ end
 end
 
 %% Function to get likelihood for a single measurement
-function p = getSingleMeasProbability(yk, xGPS, xDebris, xRx, R, const)
+function [p, yHat] = getSingleMeasProbability(yk, xGPS, xDebris, xRx, R, const)
     fIncludeTimeDelay = size(R,1) == 2; % True if Rtrue is 2x2
     
     fT = const.gps.L1freq;

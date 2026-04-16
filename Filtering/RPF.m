@@ -1,5 +1,4 @@
-function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness, wTot] = RPF(x_k, w_k, y_kp1, q, ...
-                                                    effectiveParticlesTol)
+function [outputs] = RPF(x_k, w_k, y_kp1, q, effectiveParticlesTol)
 %{
     Regularized PF
     
@@ -8,6 +7,7 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness, wTot] = RPF(x_k, w_k, y_kp1
     y_kp1 = measurements
     q = transition distribution function q = f(x_k) = p(x_kp1|x_k)
 %}
+    status = 0;
     [nStates, N] = size(x_k);
     x_kp1 = NaN(nStates,N);
     w_kp1 = NaN(N,1);
@@ -16,13 +16,17 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness, wTot] = RPF(x_k, w_k, y_kp1
 
     % Check if measurement has time of flight included
     fIncludeTimeDelay = false;
+    nMeasVars = 1;
     if size(y_kp1,1) == 10 % e.g. 4 x GPS states + 4 x Rx states + yDoppler + yDt
         fIncludeTimeDelay = true;
+        nMeasVars = 2;
     end
 
+    nMeasurements = size(y_kp1,2);
+
+    yHat = NaN(nMeasVars, nMeasurements, N);
+
     %% Get Measurement Covariance
-    %% TODO - decide if this dT is appropriate here??? - ALSO need to change this in measurementModel.m
-    % discrete time band limited noise (emit rate in Hz, hence multiplication
     R = const.est.pf.measNoiseCov / const.dT; 
     if ~fIncludeTimeDelay
         R = R(1,1); % pull out doppler covariance only
@@ -34,19 +38,22 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness, wTot] = RPF(x_k, w_k, y_kp1
         x_kp1(:,iParticle) = q(x_k(:,iParticle));
 
         % Get a new w_kp1 = p(z_kp1 | x_kp1)*w_k
-        w_kp1(iParticle) = pYgivenX(x_kp1(:,iParticle), y_kp1, const, R)*w_k(iParticle);
+        [pLikelihoood, yHat(:,:,iParticle)] = pYgivenX(x_kp1(:,iParticle),...
+            y_kp1, const, R);
+        w_kp1(iParticle) = pLikelihoood*w_k(iParticle);
     end
 
     % Normalize weights
     wTot = sum(w_kp1);
     if (wTot == 0)
-        error('Particle collapse occured');
+        warning('Particle collapse occured');
+        status = 1;
     end
 
     w_kp1_Normalized = w_kp1 ./ wTot;
     w_kp1 = w_kp1_Normalized; % Set this so we can see the correct values
 
-    % Estimators
+    %% Estimators
     % MMSE
     est.MMSE = x_kp1 * w_kp1_Normalized; % Sum of weights * states
     est.cov = zeros(nStates,nStates);
@@ -59,17 +66,50 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness, wTot] = RPF(x_k, w_k, y_kp1
     [~, mapIdx] = max(w_kp1_Normalized); % Find argmax over all particles
     est.MAP = x_kp1(:,mapIdx);
 
+    %% Innovations
+    % Treat each measurement independently as it has different
+    % sources/sensors
+    yErrMean = NaN(nMeasurements,1);
+    for iMeas = 1:nMeasurements
+        yHat_iMeas = squeeze(yHat(:,iMeas,:));
+        S_iMeas = cov(yHat_iMeas'); % Covariance of measurements across all particles
+        yInnov = y_kp1(1:nMeasVars, iMeas) - yHat_iMeas;
+        err_iMeas = NaN(N,1);
+        for iParticle = 1:N
+            err_iMeas(iParticle) = yInnov(:,iParticle)'*inv(S_iMeas)*yInnov(:,iParticle);
+        end
+        yErrMean(iMeas) = mean(err_iMeas);
+    end
+
+
     %% Resampling
     Ness = calcEffectiveSS(w_kp1_Normalized,N);
 
     if Ness < effectiveParticlesTol*N
-        %% TODO - add perturbations here
-
         % Standard Resampling - draw new particles from approx posterior given by
         % w_kp1_Normalized = p(x_k+1 | Y_1:k+1)
         indicesToSampleFrom = randsample(1:N,N,true,w_kp1_Normalized);
         x_kp1 = x_kp1(:,indicesToSampleFrom);
+                
+        % Gaussian Perturbations
+        Dk = chol(est.cov,'lower');
+        % A = (4/(nStates + 2))^(1/(nStates+4));
+        % hOpt = A*N^-(1/nStates+4); 
+        hOpt = const.est.pf.rpf_h;
+        x_kp1 = x_kp1 + hOpt*Dk*randn(size(x_kp1));
+
         % Uniform weights after resampling
         w_kp1_Normalized = 1/N; 
     end
+
+    %% Package Outputs
+    outputs = struct();
+    outputs.x = x_kp1;
+    outputs.wNormalized = w_kp1_Normalized;
+    outputs.w = w_kp1;
+    outputs.wTot = wTot;
+    outputs.est = est;
+    outputs.Ness = Ness;
+    outputs.yInnovMeans = yErrMean; % innovations mean
+    outputs.status = status;
 end

@@ -1,4 +1,4 @@
-function plotPF_Results(simData, pfResults)
+function plotPF_Results(simData, pfResults, alphaCI)
     %{
         Plots the response of the PF for a single run.
     %}
@@ -17,7 +17,7 @@ function plotPF_Results(simData, pfResults)
     title('Number of Effective Particles Vs Time');
 
     %% Animated Histogram of Weights vs Time
-    plotWeightsAnimation(pfResults);
+    % plotWeightsAnimation(pfResults);
 
     %% Error Plot - Ground Truth - Estimate + covariance bounds
     sigmaLevel = 2;
@@ -27,10 +27,35 @@ function plotPF_Results(simData, pfResults)
 
     %% States Plot - Animation with particles
     % plotAnimatedStates(simData, pfResults, const);
+
+    %% Measurement Innovations Estimate
+    plotMeasInnov(alphaCI,pfResults,simData);
     
 end
 
 %% Helper Functions
+function plotMeasInnov(alpha, pfResults, simData)
+    nMeasVars = size(simData.meas.y,1);
+    r1 = chi2inv(alpha/2,pfResults.Np*nMeasVars)/pfResults.Np;
+    r2 = chi2inv(1-alpha/2,pfResults.Np*nMeasVars)/pfResults.Np;
+    
+    figure('Name','PF Measurement Innovations - Single Run');
+    hold on;
+    yline(r1,'r--');
+    yline(r2,'r--');
+    for iTime = 1:numel(pfResults.t)
+        yData = pfResults.yMeanInnovErrors{iTime};
+        if ~isempty(yData)
+            plot(repmat(pfResults.t(iTime),length(yData),1), yData,'b*');
+        end
+    end
+    grid on;
+    xlabel('Time (s)');
+    ylabel('PF Mean Y Innovation Errors');
+    title('NIS Test For PF');
+end
+
+
 function plotWeightsAnimation(pfResults)
     figure('Name','PF Weights Animation');
     hWeights = histogram(NaN);
