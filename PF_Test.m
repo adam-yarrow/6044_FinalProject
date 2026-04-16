@@ -16,8 +16,9 @@ type = 'RPF';
 pfResults = Run_PF(type, Np, simData, P0, mu0);
 % profile viewer;
 
-
-%% TODO - plot the NEES test results for the PF - need to generate in post
+% NEES data generation
+[xErrMean, xErrMalhalanobis] = generatePF_NEES(simData,pfResults);
+pfResults.xErrMean = xErrMean;
 
 alphaCI = 0.05;
 plotPF_Results(simData,pfResults,alphaCI);
