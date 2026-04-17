@@ -1,7 +1,6 @@
 clear all; close all; clc
 %rng(0);
 Startup;
-
 %% Options Struct for NLS Solver
 nlsOptions = struct();
 nlsOptions.maxIterations = 100;
@@ -24,7 +23,7 @@ thetaRx = linspace(0,2*pi,NLS_Params.rx.nRx);
 thetaGPS = linspace(0,2*pi,NLS_Params.gps.nSatellites);
 debris_x0_true = createCircularOrbitIC(NLS_Params.debris.altitude,0);
 
-debris_x0 = debris_x0_true + randn(size(debris_x0_true)).*[10;0.01;0;0.01];
+debris_x0 = debris_x0_true + randn(size(debris_x0_true)).*[10;0.01;10;0.01];
 
 simData = Simulation(thetaGPS, thetaRx, debris_x0_true, endTime);
 
@@ -35,13 +34,15 @@ Receiver_x = simData.meas.xRx;
 
 N = length(y);
 
-V_NLS = NLS_Params.rx.V(1,1);
-R_NLS = V_NLS*eye(N);
+V_NLS = NLS_Params.rx.V(1,1)/dT;
+R_NLS = (V_NLS*35)*eye(N);
 
 ft = NLS_Params.gps.L1freq;
 c = NLS_Params.c;
 dT = NLS_Params.dT;
 processNoise = NLS_Params.debris.W;
+
+%%
    
 H_NLS = @(debris_x) compute_H_wrapper(tk, debris_x, GPS_x, Receiver_x, ft, c, dT);
 h_NLS = @(debris_x) h_batch_wrapper(tk, debris_x, GPS_x, Receiver_x, ft, dT, NLS_Params);
@@ -74,3 +75,38 @@ sgtitle('Initial State Comparison')
 nlsDetails = details;
 
 plotNLS(nlsDetails,debris_x0_true,tk,x0,y)
+
+%% 1. Propagate your solved x0 over the simulation time
+t_vec = simData.t; % Use the full simulation time vector
+nSteps = length(t_vec);
+x_est_traj = zeros(4, nSteps);
+x_est_curr = x0(:); % Your final result from NLS
+
+% We need to propagate step-by-step to match the simulation timestamps
+for k = 1:nSteps-1
+    x_est_traj(:, k) = x_est_curr;
+    dt = t_vec(k+1) - t_vec(k);
+    x_est_curr = OrbitalDynamics(t_vec(k), x_est_curr, dt)';
+end
+x_est_traj(:, end) = x_est_curr;
+
+% 2. Extract True Trajectory
+% simData.truth.debris is [4 x nTimes x nDebris]
+x_true_traj = squeeze(simData.truth.debris(:, :, 1));
+
+% 3. Plotting Trajectories
+figure('Name', 'Orbit Recovery Performance');
+labels = {'x [km]', 'v_x [km/s]', 'y [km]', 'v_y [km/s]'};
+
+for i = 1:4
+    subplot(2, 2, i);
+    plot(t_vec, x_true_traj(i, :), 'r', 'LineWidth', 2); hold on;
+    plot(t_vec, x_est_traj(i, :), 'b--', 'LineWidth', 1.5);
+    
+    xlabel('Time [s]');
+    ylabel(labels{i});
+    legend('Truth', 'NLS Propagated');
+    grid on;
+    title(['Trajectory: ', labels{i}]);
+end
+sgtitle('True vs. Estimated Debris Trajectory (50s Window)');

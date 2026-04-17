@@ -12,7 +12,7 @@ function h_k1 = h_batch_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, dT, const)
     % h_k1          - [N x 1] predicted measurement vector
 
     % Initialize debris state
-    debris_x = debris_x0;              % [n x 1]
+    debris_x = debris_x0(:);              % [n x 1]
     t_current = 0;
 
     % Number of time steps

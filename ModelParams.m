@@ -16,7 +16,7 @@ const.stateNames = {'x','xDot','y','yDot'};
 const.stateUnits = {'km','km/s','km','km/s'};
 
 % Meas Model
-const.fIncludeTimeOfFlight = true;
+const.fIncludeTimeOfFlight = false;
 const.fTruthMeasModel = false;
 if (const.fIncludeTimeOfFlight)
     const.measNames = {'fDoppler','timeOfFlight'};
