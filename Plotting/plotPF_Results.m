@@ -27,6 +27,10 @@ function plotPF_Results(simData, pfResults, alphaCI)
 
     %% States Plot - Animation with particles
     % plotAnimatedStates(simData, pfResults, const);
+   
+    %% Plot what sensors were in view
+    plotSensorsAndTxInView(simData);
+
 
 end
 
