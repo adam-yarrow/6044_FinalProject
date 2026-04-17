@@ -1,4 +1,4 @@
-function [pf] = Run_PF(type, Np, simData, P0, mu0)
+function [pf] = Run_PF(type, Np, simData, P0, mu0, nWorkers)
     %{
         Runs a SIR PF with inputs:
             Np = number of particles to run
@@ -65,7 +65,7 @@ function [pf] = Run_PF(type, Np, simData, P0, mu0)
 
             case 'rpf'
                  outputs = RPF(pf.x(:,:,kt1), pf.wNormalized(:,kt1), yk, q, ...
-                            const.est.pf.NessTol);
+                            const.est.pf.NessTol, nWorkers);
                  pf.x(:,:,k) = outputs.x;
                  pf.wNormalized(:,k) = outputs.wNormalized;
                  est_k = outputs.est;
@@ -73,7 +73,6 @@ function [pf] = Run_PF(type, Np, simData, P0, mu0)
                  pf.Ness(k) = outputs.Ness;
                  pf.wTot(k) = outputs.wTot;
                  status = outputs.status;
-                 pf.yMeanInnovErrors{k} = outputs.yInnovMeans;
         end
        
         if status

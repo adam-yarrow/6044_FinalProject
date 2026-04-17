@@ -1,4 +1,4 @@
-function [outputs] = RPF(x_k, w_k, y_kp1, q, effectiveParticlesTol)
+function [outputs] = RPF(x_k, w_k, y_kp1, q, effectiveParticlesTol, nWorkers)
 %{
     Regularized PF
     
@@ -33,7 +33,7 @@ function [outputs] = RPF(x_k, w_k, y_kp1, q, effectiveParticlesTol)
     end
 
     % Sample q(x_kp1|x_k,y_kp1) to get new x_kp1^i
-    for iParticle = 1:N
+    parfor (iParticle = 1:N, nWorkers)
         % Draw a single sample from q(xkp1|xk,i) 
         x_kp1(:,iParticle) = q(x_k(:,iParticle));
 
@@ -66,22 +66,6 @@ function [outputs] = RPF(x_k, w_k, y_kp1, q, effectiveParticlesTol)
     [~, mapIdx] = max(w_kp1_Normalized); % Find argmax over all particles
     est.MAP = x_kp1(:,mapIdx);
 
-    %% Innovations
-    % Treat each measurement independently as it has different
-    % sources/sensors
-    yErrMean = NaN(nMeasurements,1);
-    for iMeas = 1:nMeasurements
-        yHat_iMeas = squeeze(yHat(:,iMeas,:));
-        S_iMeas = cov(yHat_iMeas'); % Covariance of measurements across all particles
-        yInnov = y_kp1(1:nMeasVars, iMeas) - yHat_iMeas;
-        err_iMeas = NaN(N,1);
-        for iParticle = 1:N
-            err_iMeas(iParticle) = yInnov(:,iParticle)'*inv(S_iMeas)*yInnov(:,iParticle);
-        end
-        yErrMean(iMeas) = mean(err_iMeas);
-    end
-
-
     %% Resampling
     Ness = calcEffectiveSS(w_kp1_Normalized,N);
 
@@ -110,6 +94,6 @@ function [outputs] = RPF(x_k, w_k, y_kp1, q, effectiveParticlesTol)
     outputs.wTot = wTot;
     outputs.est = est;
     outputs.Ness = Ness;
-    outputs.yInnovMeans = yErrMean; % innovations mean
+    outputs.yHat = yHat;
     outputs.status = status;
 end
