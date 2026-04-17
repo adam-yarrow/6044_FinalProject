@@ -34,13 +34,13 @@ Receiver_x = simData.meas.xRx;
 
 N = length(y);
 
-V_NLS = NLS_Params.rx.V(1,1)/dT;
-R_NLS = (V_NLS*35)*eye(N);
-
 ft = NLS_Params.gps.L1freq;
 c = NLS_Params.c;
 dT = NLS_Params.dT;
 processNoise = NLS_Params.debris.W;
+
+V_NLS = NLS_Params.rx.V(1,1)/dT;
+R_NLS = (V_NLS*35)*eye(N);
 
 %%
    
