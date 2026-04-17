@@ -28,54 +28,9 @@ function plotPF_Results(simData, pfResults, alphaCI)
     %% States Plot - Animation with particles
     % plotAnimatedStates(simData, pfResults, const);
 
-    %% Measurement Innovations Estimate
-    plotMeasInnov(alphaCI,pfResults,simData);
-
-    %% NEES Estimate
-    plotNEES(alphaCI,pfResults);
-    
 end
 
 %% Helper Functions
-function plotNEES(alpha, pfResults)
-    nStates = ModelParams('nStates');
-    r1 = chi2inv(alpha/2,pfResults.Np*nStates)/pfResults.Np;
-    r2 = chi2inv(1-alpha/2,pfResults.Np*nStates)/pfResults.Np;
-
-    figure('Name','PF State Estimate Errors - Single Run');
-    hold on;
-    yline(r1,'r--');
-    yline(r2,'r--');
-    plot(pfResults.t, pfResults.xErrMean,'b*');
-    grid on;
-    xlabel('Time (s)');
-    ylabel('PF Mean X NEES Errors');
-    title('NEES Test For PF');
-    
-end
-
-function plotMeasInnov(alpha, pfResults, simData)
-    nMeasVars = size(simData.meas.y,1);
-    r1 = chi2inv(alpha/2,pfResults.Np*nMeasVars)/pfResults.Np;
-    r2 = chi2inv(1-alpha/2,pfResults.Np*nMeasVars)/pfResults.Np;
-    
-    figure('Name','PF Measurement Innovations - Single Run');
-    hold on;
-    yline(r1,'r--');
-    yline(r2,'r--');
-    for iTime = 1:numel(pfResults.t)
-        yData = pfResults.yMeanInnovErrors{iTime};
-        if ~isempty(yData)
-            plot(repmat(pfResults.t(iTime),length(yData),1), yData,'b*');
-        end
-    end
-    grid on;
-    xlabel('Time (s)');
-    ylabel('PF Mean Y Innovation Errors');
-    title('NIS Test For PF');
-end
-
-
 function plotWeightsAnimation(pfResults)
     figure('Name','PF Weights Animation');
     hWeights = histogram(NaN);
