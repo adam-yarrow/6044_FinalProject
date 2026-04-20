@@ -67,7 +67,7 @@ timeOfFlightStdDev =  sqrt(3E-16)*1E6; % microseconds (TODO MAYBE too small, cou
 const.rx.V = diag([dopplerMeasStdDev^2; timeOfFlightStdDev^2]); % doppler (Hz)^2, timeDelay (s)^2
 
 %% Filtering parameters
-processNoiseInflationSF = 1; %0.1;
+processNoiseInflationSF = 10; %0.1;
 const.est.pf.processNoiseCov = const.debris.W * processNoiseInflationSF;
 dopplerInflationSF = 35; 50;
 deltaTInflationSF = 1000; 100;

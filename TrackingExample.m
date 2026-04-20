@@ -1,5 +1,3 @@
-
-
 %% First Estimate x0 with NLS (to warm start PF)
 %{
     NLS isn't using time of flight information, just trying to improve 
@@ -7,7 +5,9 @@
 %}
 
 %% NLS warm start
-[x0Est_NLS, P_NLS, nlsDetails] = NLS_WarmStart();
+if ~exist("x0Est_NLS")
+    [x0Est_NLS, P_NLS, nlsDetails] = NLS_WarmStart();
+end
 
 %% Now Use PF to track entire orbit
 % Reset rng to match simulation
@@ -27,7 +27,9 @@ P0(4,4) = P_NLS(4,4);
 P0(4,2) = P_NLS(4,2);
 
 % Run Sim again (for longer)
-simData = GenerateSimData(false, params);
+if ~exist("simData","var")
+    simData = GenerateSimData(false, params);
+end
 
 % Run PF
 Np = 1000;
