@@ -1,8 +1,6 @@
-function simData = GenerateSimData(fPlot)
-    params = ModelParams();
-    
+function simData = GenerateSimData(fPlot, params)
     % Debris IC - TODO: Add perturbations here
-    debrisIC = createCircularOrbitIC(params.debris.altitude,params.debris.phaseIC); % Debris in LEO
+    debrisIC = createDebrisIC(params); % Debris in LEO
     
     % IC for GPS and Rx
     thetaRx = linspace(0,2*pi,params.rx.nRx);

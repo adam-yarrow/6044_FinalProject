@@ -15,17 +15,16 @@ nlsOptions.alphaSF = 0.5;
 %% NLS Inputs Definition
 
 NLS_Params = ModelParams();
-endTime = 50;
+NLS_Params.endTime = 50;
 NLS_Params.rx.fImplementDopplerThresholdGating = true;
+NLS_Params.fIncludeTimeOfFlight = false;  
 
 % IC for GPS, Rx & Debris
-thetaRx = linspace(0,2*pi,NLS_Params.rx.nRx);
-thetaGPS = linspace(0,2*pi,NLS_Params.gps.nSatellites);
-debris_x0_true = createCircularOrbitIC(NLS_Params.debris.altitude,0);
+debris_x0_true = createDebrisIC(NLS_Params);
+[mu0, P0] = makePriorDistribution(NLS_Params);
+debris_x0 = mu0 + chol(P0,'lower')*randn(size(debris_x0_true));
 
-debris_x0 = debris_x0_true + randn(size(debris_x0_true)).*[10;0.01;10;0.01];
-
-simData = Simulation(thetaGPS, thetaRx, debris_x0_true, endTime);
+simData = GenerateSimData(false, NLS_Params);
 
 y = simData.meas.y';
 tk = simData.meas.time;

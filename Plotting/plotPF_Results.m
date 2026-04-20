@@ -1,4 +1,4 @@
-function plotPF_Results(simData, pfResults, alphaCI)
+function plotPF_Results(simData, pfResults)
     %{
         Plots the response of the PF for a single run.
     %}

@@ -9,14 +9,14 @@ const.omegaEarth = 2*pi/86400; % rad/s
 const.mu = 398600; % km^3/s^2
 const.c = 299792.458; % km/s
 const.karmanLine = 100; % km
-const.endTime = 50; % seconds
+const.endTime = 500; % seconds
 
 const.nStates = 4; 
 const.stateNames = {'x','xDot','y','yDot'};
 const.stateUnits = {'km','km/s','km','km/s'};
 
 % Meas Model
-const.fIncludeTimeOfFlight = false;
+const.fIncludeTimeOfFlight = true;
 const.fTruthMeasModel = false;
 if (const.fIncludeTimeOfFlight)
     const.measNames = {'fDoppler','timeOfFlight'};
@@ -35,7 +35,16 @@ const.gps.altitude = 20180; % km
 const.gps.nSatellites = 31;
 
 % Debris Parameters: Assuming Iridium 33-Cosmos 2251 Collision
-% const.debris.meanDeltaV = 55.8; % m/s
+%{
+    Mean deltaV is correlated with covariance
+%}
+% Actual debris deltaV
+const.debris.IC.radialDeltaV = 40/1000; % km/s
+const.debris.IC.downRangeDeltaV = 40/1000; % km/s
+% Debris distribution (loosely based on paper by Tan, Zhang and Dokhanian)
+const.debris.IC.meanDeltaV = [5; 5]/1000; 
+const.debris.IC.covDeltaV =  (40/1000)^2*[1 0.5; 0.5 1]; % Should this have off diagonals?
+const.debris.IC.covDeltaPos = 0.25/1000; % Based on Gong et al. (2025)
 const.debris.altitude = 790; % km (average of apogee and perigee  for Iridium 33)
 const.debris.phaseIC = 0; % angle in rad
 const.debris.fProcessNoise = true;
@@ -60,7 +69,7 @@ const.rx.V = diag([dopplerMeasStdDev^2; timeOfFlightStdDev^2]); % doppler (Hz)^2
 %% Filtering parameters
 processNoiseInflationSF = 1; %0.1;
 const.est.pf.processNoiseCov = const.debris.W * processNoiseInflationSF;
-dopplerInflationSF = 10; 50;
+dopplerInflationSF = 35; 50;
 deltaTInflationSF = 1000; 100;
 const.est.pf.measNoiseCov = diag([dopplerMeasStdDev^2*dopplerInflationSF;...
                                     timeOfFlightStdDev^2*deltaTInflationSF]);
@@ -68,6 +77,18 @@ const.est.pf.measNoiseCov = diag([dopplerMeasStdDev^2*dopplerInflationSF;...
 const.est.pf.NessTol = 0.5; % 0 to 1, proportion of Np to resample at
 const.est.pf.rpf_h = 0; 1E-5; % IF zero then just SIR filter with resampling based on Ness tolerance
 
+% NLS Params
+nlsOptions = struct();
+nlsOptions.maxIterations = 100;
+nlsOptions.JnlsRelTol =  1E-8;
+nlsOptions.x0Tol = 1E-6;
+nlsOptions.maxAlphaIterations = 50;
+nlsOptions.alphaRelTol = 1E-4; % Relative change between estimates of optimal alpha that triggers convergence
+nlsOptions.minAlpha = 1E-10;
+nlsOptions.fAlphaGoldenSearch = true;
+nlsOptions.alphaSF = 0.5;
+const.nls.options = nlsOptions;
+const.nls.covInflationSF = 35;
 
 %% Pull out specific parameter if required
 nArgs = length(varargin);
