@@ -1,7 +1,9 @@
 params = ModelParams();
-if ~exist('simData','var')
+params.endTime = 50;
+params.est.pf.measNoiseCov = params.est.pf.measNoiseCov / 1000;
+if ~exist('simDataTest','var')
     % load('SavedData\simData_halfOrbit.mat')    
-    simData = GenerateSimData(false, params);
+    simDataTest = GenerateSimData(false, params);
 end
 % save('SavedData\simData_halfOrbit.mat','simData');
 
@@ -14,8 +16,10 @@ Np = 1000;
 
 % profile on 
 type = 'RPF';
-nWorkers = 0; % 0 --> serial, > 1 --> Parallel pools
-pfResults = Run_PF(type, Np, simData, P0, mu0, nWorkers);
+nWorkers = 6; % 0 --> serial, > 1 --> Parallel pools
+pfResultsTest = Run_PF(type, Np, simDataTest, P0, mu0, nWorkers);
 % profile viewer;
 
 plotPF_Results(simData,pfResults);
+
+[dt_history, dtMean, testStatistic] = PF_KS_Test(simDataTest,pfResultsTest,params);
