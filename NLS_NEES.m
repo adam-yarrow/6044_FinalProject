@@ -51,7 +51,7 @@ for i = 1:MC_Runs
 
     fprintf('Monte Carlo run %d of %d\n', i, MC_Runs);
     
-    simData = Simulation(thetaGPS, thetaRx, debris_x0_true, endTime);
+    simData = Simulation(thetaGPS, thetaRx, debris_x0_true, endTime, NLS_Params);
 
     y = simData.meas.y';
     tk = simData.meas.time;

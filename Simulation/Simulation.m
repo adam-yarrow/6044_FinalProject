@@ -1,4 +1,4 @@
-function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime)
+function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime, params)
 %{
     Function to run and generate simulation data that can then be fed 
     through filters.
@@ -13,7 +13,6 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime)
 
     endTime = time in seconds to end the simulation
 %}
-    params = ModelParams();
 
     %% Data Storage Setup
     simData = struct();

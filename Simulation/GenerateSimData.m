@@ -7,7 +7,7 @@ function simData = GenerateSimData(fPlot, params)
     thetaGPS = linspace(0,2*pi,params.gps.nSatellites);
     
     % Generation
-    simData = Simulation(thetaGPS, thetaRx, debrisIC, params.endTime);
+    simData = Simulation(thetaGPS, thetaRx, debrisIC, params.endTime, params);
 
     %% Plotting
     if fPlot
