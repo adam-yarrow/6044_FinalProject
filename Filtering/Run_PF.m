@@ -1,4 +1,4 @@
-function [pf] = Run_PF(type, Np, simData, P0, mu0, nWorkers)
+function [pf] = Run_PF(type, Np, simData, P0, mu0, nWorkers, const)
     %{
         Runs a SIR PF with inputs:
             Np = number of particles to run
@@ -11,7 +11,6 @@ function [pf] = Run_PF(type, Np, simData, P0, mu0, nWorkers)
         estimating the debris position at each GPS emission time.
     %}
 
-    const = ModelParams();
     gpsPacketTimes = unique(simData.meas.gpsEmissionTime);
     nMeasurements = numel(gpsPacketTimes);
     nTimes = nMeasurements + 1;
@@ -40,7 +39,10 @@ function [pf] = Run_PF(type, Np, simData, P0, mu0, nWorkers)
     %% Propagate Particles
     prevGPStime = 0;
     t0 = tic();
-    wb = progressBar(1,nTimes,t0,[],'Running PF');
+
+    if const.fEnableProgressBars
+        wb = progressBar(1,nTimes,t0,[],'Running PF');
+    end
     for k = 2:nTimes % Matlab indexing makes this interesting
         kt1 = k - 1;
 
@@ -89,11 +91,14 @@ function [pf] = Run_PF(type, Np, simData, P0, mu0, nWorkers)
         prevGPStime = currentGPStime;
 
         % Update Progress and check for cancellation
-        wb = progressBar(k, nTimes, t0, wb);
-    
-        if isfield(wb, 'cancelled') && wb.cancelled
-            fprintf('Loop cancelled at iter %d\n', k);
-            break
+
+        if const.fEnableProgressBars
+            wb = progressBar(k, nTimes, t0, wb);
+        
+            if isfield(wb, 'cancelled') && wb.cancelled
+                fprintf('Loop cancelled at iter %d\n', k);
+                break
+            end
         end
     end  
     

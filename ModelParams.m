@@ -9,7 +9,9 @@ const.omegaEarth = 2*pi/86400; % rad/s
 const.mu = 398600; % km^3/s^2
 const.c = 299792.458; % km/s
 const.karmanLine = 100; % km
-const.endTime = 500; % seconds
+const.endTime = 6500/4; % seconds
+
+const.fEnableProgressBars = true;
 
 const.nStates = 4; 
 const.stateNames = {'x','xDot','y','yDot'};

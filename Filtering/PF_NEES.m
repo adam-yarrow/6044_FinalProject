@@ -31,7 +31,7 @@ function neesData = PF_NEES(nMC, rngSeed, alpha, nWorkers, params, mu0, P0, Np)
 
         %% TODO - should i perturb the mu0 given to the PF?
         type = 'RPF';       
-        pfResults{iMC} = Run_PF(type, Np, simData{iMC}, P0, mu0, nWorkers);
+        pfResults{iMC} = Run_PF(type, Np, simData{iMC}, P0, mu0, nWorkers, params);
 
         measTimesIdx = ismembertol(simData{iMC}.t, pfResults{iMC}.t,1E-9);
 
@@ -57,12 +57,5 @@ function neesData = PF_NEES(nMC, rngSeed, alpha, nWorkers, params, mu0, P0, Np)
     neesData.averageErrors = averageErrors;
     neesData.t = times;
     neesData.neesHistory = neesHistory;
-    neesData.errorHistory = errorHistory;
-
-    %% Plotting
-    figure('Name', 'NEES Consistency Test');
-    hold on;
-    plot(times, neesHistory, 'bo', 'MarkerFaceColor', 'b'); 
-    yline(r1_ind, 'r--', 'Lower Bound (individual)');
-    yline(r2_ind, 'r--', 'Upper Bound (individual)');
+    neesData.errorHistory = errorHistory;   
 end

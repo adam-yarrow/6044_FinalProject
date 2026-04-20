@@ -54,7 +54,9 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime, params
 
     %% Run Simulation
     t0 = tic();
-    wb = progressBar(1,simData.nTimes,t0,[]);
+    if params.fEnableProgressBars
+        wb = progressBar(1,simData.nTimes,t0,[]);
+    end
     for iTime = 2:simData.nTimes
         % Update Dynamics
         simData.truth.gps(:,iTime,:) = updateDynamics(gpsObjs);
@@ -99,11 +101,13 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime, params
         end
 
         % Update Progress and check for cancellation
-        wb = progressBar(iTime, simData.nTimes, t0, wb);
-    
-        if isfield(wb, 'cancelled') && wb.cancelled
-            fprintf('Loop cancelled at iter %d\n', iTime);
-            break
+        if params.fEnableProgressBars
+            wb = progressBar(iTime, simData.nTimes, t0, wb);
+        
+            if isfield(wb, 'cancelled') && wb.cancelled
+                fprintf('Loop cancelled at iter %d\n', iTime);
+                break
+            end
         end
     end
 
