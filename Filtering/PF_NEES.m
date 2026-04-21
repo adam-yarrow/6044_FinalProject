@@ -1,15 +1,7 @@
-function neesData = PF_NEES(nMC, rngSeed, alpha, nWorkers, params, mu0, P0, Np)
+function neesData = PF_NEES(nMC, rngSeed, nWorkers, params, mu0, P0, Np)
     %{
         Ideally use the same warm start from NLS for all simulations.
     %}
-
-    % Individual NEES bounds (chi2 with nStates DOF)
-    r1_ind = chi2inv(alpha/2, params.nStates);
-    r2_ind = chi2inv(1-alpha/2, params.nStates);
-    
-    % Average NEES bounds (chi2 with MC_Runs*nStates DOF, scaled)
-    r1_avg = chi2inv(alpha/2, nMC*params.nStates) / nMC;
-    r2_avg = chi2inv(1-alpha/2, nMC*params.nStates) / nMC;
 
     % Data Storage
     simData = cell(nMC,1);

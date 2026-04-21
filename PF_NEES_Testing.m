@@ -8,10 +8,19 @@ Np = 1000;
 
 params = ModelParams();
 params.fEnableProgressBars = false;
+params.endTime = 10;
 [mu0, P0] = makePriorDistribution(params);
 %% TODO define mu0 and P0 with NLS warm start - for now copied from workspace
+mu0(2) = x0Est_NLS(2);
+mu0(4) = x0Est_NLS(4);
 
-neesData = PF_NEES(nMC, rngSeed, alpha, nWorkers, params, mu0, P0, Np);
+% Update only pure velocity terms in covariance matrix
+P0(2,2) = P_NLS(2,2);
+P0(2,4) = P_NLS(2,4);
+P0(4,4) = P_NLS(4,4);
+P0(4,2) = P_NLS(4,2);
+
+neesData = PF_NEES(nMC, rngSeed, nWorkers, params, mu0, P0, Np);
 
 
 %% Plotting
