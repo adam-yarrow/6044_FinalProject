@@ -33,7 +33,13 @@ function [pf] = Run_PF(type, Np, simData, P0, mu0, nWorkers, const)
 
     %% Prior Distribution
     pf.x(:,:,1) = generateGaussianX_IC(P0, mu0, Np);
-    pf.wNormalized(:,1) = 1/Np;
+
+    if const.est.pf.fUseLogSpace
+        weights = log(1/Np);
+    else
+        weights = 1/Np;
+    end
+    pf.wNormalized(:,1) = weights;
     pf.w(:,1) = pf.wNormalized(:,1);
             
     %% Propagate Particles

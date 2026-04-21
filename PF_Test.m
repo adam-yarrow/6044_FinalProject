@@ -15,7 +15,7 @@ rng(0);
 Np = 1000;
 
 % profile on 
-type = 'RPF';
+type = params.est.pf.type;
 nWorkers = 6; % 0 --> serial, > 1 --> Parallel pools
 pfResultsTest = Run_PF(type, Np, simDataTest, P0, mu0, nWorkers, params);
 % profile viewer;

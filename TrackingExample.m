@@ -33,7 +33,7 @@ end
 
 % Run PF
 Np = 1000;
-type = 'RPF';
+type = params.est.pf.type;
 nWorkers = 0; % 0 --> serial, > 1 --> Parallel pools
 pfResults = Run_PF(type, Np, simData, P0, mu0, nWorkers, params);
 

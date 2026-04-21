@@ -39,18 +39,31 @@ function [outputs] = RPF(x_k, w_k, y_kp1, q, effectiveParticlesTol, nWorkers)
 
         % Get a new w_kp1 = p(z_kp1 | x_kp1)*w_k
         [pLikelihoood, yHat(:,:,iParticle)] = pYgivenX(x_kp1(:,iParticle),...
-            y_kp1, const, R);
-        w_kp1(iParticle) = pLikelihoood*w_k(iParticle);
+            y_kp1, const, R, const.est.pf.fUseLogSpace);
+        if const.est.pf.fUseLogSpace
+            w_kp1(iParticle) = pLikelihoood + w_k(iParticle);
+        else
+            w_kp1(iParticle) = pLikelihoood*w_k(iParticle);
+        end
     end
 
     % Normalize weights
-    wTot = sum(w_kp1);
-    if (wTot == 0)
-        warning('Particle collapse occured');
-        status = 1;
-    end
+    if const.est.pf.fUseLogSpace
+        wTot = LogSumExp(w_kp1);
+        if (wTot == -Inf) 
+            error('Particle collapse occured');
+        end
+        w_kp1_Normalized = exp(w_kp1 - wTot); %w_kp1 ./ wTot;
+    else
+        wTot = sum(w_kp1);
+        if (wTot == 0)
+            warning('Particle collapse occured');
+            status = 1;
+        end
 
-    w_kp1_Normalized = w_kp1 ./ wTot;
+        w_kp1_Normalized = w_kp1 ./ wTot;
+    end
+    
     w_kp1 = w_kp1_Normalized; % Set this so we can see the correct values
 
     %% Estimators

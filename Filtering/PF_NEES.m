@@ -22,7 +22,7 @@ function neesData = PF_NEES(nMC, rngSeed, nWorkers, params, mu0, P0, Np)
         simData{iMC} = GenerateSimData(false, params);
 
         %% TODO - should i perturb the mu0 given to the PF?
-        type = 'RPF';       
+        type = params.est.pf.type;       
         pfResults{iMC} = Run_PF(type, Np, simData{iMC}, P0, mu0, nWorkers, params);
 
         measTimesIdx = ismembertol(simData{iMC}.t, pfResults{iMC}.t,1E-9);

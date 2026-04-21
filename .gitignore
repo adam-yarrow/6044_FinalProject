@@ -1,1 +1,7 @@
 *.asv
+SavedData/FullOrbit/mu0.mat
+SavedData/FullOrbit/nlsWarmStart.mat
+SavedData/FullOrbit/P0_PF.mat
+SavedData/FullOrbit/params.mat
+SavedData/FullOrbit/pfResults.mat
+SavedData/FullOrbit/simData.mat

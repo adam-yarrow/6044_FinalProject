@@ -78,6 +78,8 @@ const.est.pf.measNoiseCov = diag([dopplerMeasStdDev^2*dopplerInflationSF;...
 
 const.est.pf.NessTol = 0.5; % 0 to 1, proportion of Np to resample at
 const.est.pf.rpf_h = 0; 1E-5; % IF zero then just SIR filter with resampling based on Ness tolerance
+const.est.pf.fUseLogSpace = true;
+const.est.pf.type = 'RPF';
 
 % NLS Params
 nlsOptions = struct();

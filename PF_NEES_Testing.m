@@ -1,16 +1,22 @@
-
+%{
+    Attempts to run a psuedo NEES test for PF. 
+    
+    TODO - need to work out if I need to vary the IC too
+%}
 rngSeed = 100;
 nMC = 100;
 alpha = 0.05;
 nWorkers = 6;
 Np = 1000;
 
-
 params = ModelParams();
 params.fEnableProgressBars = false;
 params.endTime = 10;
 [mu0, P0] = makePriorDistribution(params);
-%% TODO define mu0 and P0 with NLS warm start - for now copied from workspace
+
+% Warm start with NLS
+[x0Est_NLS, P_NLS, ~] = NLS_WarmStart();
+
 mu0(2) = x0Est_NLS(2);
 mu0(4) = x0Est_NLS(4);
 
