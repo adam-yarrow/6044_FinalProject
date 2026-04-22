@@ -1,4 +1,4 @@
-function [dt_history, dtMean, testStatistic] = PF_KS_Test(simData, pfResults, params)
+function [dt_history, dtMean, testStatistic] = PF_KS_Test(simData, pfResults, params,nWorkers)
     % Based off paper: "Assessment of Nonlinear Dynamic Models by KS
     % Statistics", Djuric and Miguez, 2010
     nTimes = numel(pfResults.t);
@@ -25,8 +25,8 @@ function [dt_history, dtMean, testStatistic] = PF_KS_Test(simData, pfResults, pa
     dtMean = NaN(nMeasVars, nSensorCombs, nTimes);
     testStatistic = NaN(nMeasVars, nSensorCombs, nTimes);
 
-    testStatisticMean = NaN(nMeasVars, nTimes);
-
+    t0 = tic();
+    wb = progressBar(1,nTimes,t0,[],'Running PF KS Test');
     for t = 1:nTimes
         % Resample J particles (TODO - is this correct?)
         indicesToSampleFrom = randsample(1:Np,J,true,pfResults.wNormalized(:,t)');
@@ -54,7 +54,7 @@ function [dt_history, dtMean, testStatistic] = PF_KS_Test(simData, pfResults, pa
             % Generate K fake observations
             for k = 1:K
                 y_tilde_k = zeros(nMeasVars,1);
-                for j = 1:J
+                parfor (j = 1:J, nWorkers)
                     % TODO - are we meant to use our real measurement model
                     % here or the PF truth one?                    
                     y_tilde_k = y_tilde_k +...
@@ -75,6 +75,12 @@ function [dt_history, dtMean, testStatistic] = PF_KS_Test(simData, pfResults, pa
             dtMean(:,currentMeasId,t) = mean(dt_history(:,currentMeasId,:),3,'omitnan');
             testStatistic(:,currentMeasId,t) = abs(dtMean(:,currentMeasId,t) ...
                                                 - Dt_mu);
+        end
+
+        wb = progressBar(t, nTimes, t0, wb);        
+        if isfield(wb, 'cancelled') && wb.cancelled
+            fprintf('Loop cancelled at iter %d\n', k);
+            break
         end
     end
     
