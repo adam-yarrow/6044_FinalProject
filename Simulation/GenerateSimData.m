@@ -3,8 +3,8 @@ function simData = GenerateSimData(fPlot, params)
     debrisIC = createDebrisIC(params); % Debris in LEO
     
     % IC for GPS and Rx
-    thetaRx = linspace(0,2*pi,params.rx.nRx);
-    thetaGPS = linspace(0,2*pi,params.gps.nSatellites);
+    thetaRx = linspace(0,2*pi,params.rx.nRx+1); thetaRx(1:end-1);
+    thetaGPS = linspace(0,2*pi,params.gps.nSatellites+1); thetaGPS = thetaGPS(1:end-1);
     
     % Generation
     simData = Simulation(thetaGPS, thetaRx, debrisIC, params.endTime, params);

@@ -48,9 +48,9 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime, params
             buildObjects(simData, params, thetaIC_GPS, thetaIC_Rx, debrisIC);
 
     %% Set IC into database
-    simData.truth.gps(:,1,:) = getStates(gpsObjs);
-    simData.truth.debris(:,1,:) = getStates(debrisObjs);
-    simData.truth.rx(:,1,:) = getStates(rxObjs);
+    simData.truth.gps(:,1,:) = getStates(gpsObjs,params);
+    simData.truth.debris(:,1,:) = getStates(debrisObjs,params);
+    simData.truth.rx(:,1,:) = getStates(rxObjs,params);
 
     %% Run Simulation
     t0 = tic();
@@ -59,9 +59,9 @@ function simData = Simulation(thetaIC_GPS, thetaIC_Rx, debrisIC, endTime, params
     end
     for iTime = 2:simData.nTimes
         % Update Dynamics
-        simData.truth.gps(:,iTime,:) = updateDynamics(gpsObjs);
-        simData.truth.debris(:,iTime,:) = updateDynamics(debrisObjs);
-        simData.truth.rx(:,iTime,:) = updateDynamics(rxObjs);
+        simData.truth.gps(:,iTime,:) = updateDynamics(gpsObjs,params);
+        simData.truth.debris(:,iTime,:) = updateDynamics(debrisObjs,params);
+        simData.truth.rx(:,iTime,:) = updateDynamics(rxObjs,params);
 
         % Get Messages
         [simData.msgs.gps{iTime}, ...
@@ -143,9 +143,9 @@ function [gpsMsgs, debrisMsgs, rxMsgs] = getMsgs(simData, gpsObjs, debrisObjs, r
     end
 end
 
-function truthStates = getStates(objects)
+function truthStates = getStates(objects,params)
     nObjects = numel(objects);
-    truthStates = NaN(ModelParams('nStates'), nObjects);
+    truthStates = NaN(params.nStates, nObjects);
     
     for iObject = 1:nObjects
         currentObj = objects{iObject};
@@ -153,12 +153,12 @@ function truthStates = getStates(objects)
     end
 end
 
-function truthStates = updateDynamics(objects) % passes objects by reference if handle class
+function truthStates = updateDynamics(objects,params) % passes objects by reference if handle class
     % Objects = cell array of handle classes that have stepDynamics() and
     % getState()
 
     nObjects = numel(objects);
-    truthStates = NaN(ModelParams('nStates'), nObjects);
+    truthStates = NaN(params.nStates, nObjects);
 
     for iObject = 1:nObjects
         currentObj = objects{iObject};
@@ -176,16 +176,16 @@ function [gpsStorage, rxStorage, debrisStorage] = ...
     
     for iGPS = 1:simData.nGPS
         gpsIC = createCircularOrbitIC(params.gps.altitude,thetaIC_GPS(iGPS));
-        gpsStorage{iGPS} = GPS(iGPS,gpsIC);        
+        gpsStorage{iGPS} = GPS(iGPS,gpsIC,params);        
     end
     
     for iRx = 1:simData.nRx
         rxIC = createCircularOrbitIC(0, thetaIC_Rx(iRx));
-        rxStorage{iRx} = Receiver(iRx,rxIC);
+        rxStorage{iRx} = Receiver(iRx,rxIC,params);
     end
 
     for iDebris = 1:simData.nDebris 
-        debrisStorage{iDebris} = Debris(iDebris,debrisIC(:,iDebris));
+        debrisStorage{iDebris} = Debris(iDebris,debrisIC(:,iDebris),params);
     end
 end
 

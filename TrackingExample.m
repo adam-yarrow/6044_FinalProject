@@ -12,10 +12,7 @@ end
 %% Now Use PF to track entire orbit
 % Reset rng to match simulation
 rng(0);
-
 params = ModelParams();
-
-params.endTime = 50;
 
 % Update covariance estimate and mean
 [mu0, P0] = makePriorDistribution(params);
@@ -40,4 +37,4 @@ type = params.est.pf.type;
 nWorkers = 0; % 0 --> serial, > 1 --> Parallel pools
 pfResults = Run_PF(type, Np, simData, P0, mu0, nWorkers, params);
 
-plotPF_Results(simData,pfResults);
+plotPF_Results(simData,pfResults,params);

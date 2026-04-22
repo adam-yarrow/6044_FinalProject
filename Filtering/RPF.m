@@ -1,4 +1,4 @@
-function [outputs] = RPF(x_k, w_k, y_kp1, q, effectiveParticlesTol, nWorkers)
+function [outputs] = RPF(x_k, w_k, y_kp1, q, effectiveParticlesTol, nWorkers, const)
 %{
     Regularized PF
     
@@ -11,8 +11,6 @@ function [outputs] = RPF(x_k, w_k, y_kp1, q, effectiveParticlesTol, nWorkers)
     [nStates, N] = size(x_k);
     x_kp1 = NaN(nStates,N);
     w_kp1 = NaN(N,1);
-
-    const = ModelParams();
 
     % Check if measurement has time of flight included
     fIncludeTimeDelay = false;
@@ -51,7 +49,8 @@ function [outputs] = RPF(x_k, w_k, y_kp1, q, effectiveParticlesTol, nWorkers)
     if const.est.pf.fUseLogSpace
         wTot = LogSumExp(w_kp1);
         if (wTot == -Inf) 
-            error('Particle collapse occured');
+            warning('Particle collapse occured');
+            status = 1;
         end
         w_kp1_Normalized = exp(w_kp1 - wTot); %w_kp1 ./ wTot;
     else
@@ -89,7 +88,11 @@ function [outputs] = RPF(x_k, w_k, y_kp1, q, effectiveParticlesTol, nWorkers)
         x_kp1 = x_kp1(:,indicesToSampleFrom);
                 
         % Gaussian Perturbations
-        Dk = chol(est.cov,'lower');
+        if any(real(eig(est.cov)) <= 1E-18)
+            Dk = eye(4); % who knows, terrible sampling
+        else
+            Dk = chol(est.cov,'lower');
+        end
         % A = (4/(nStates + 2))^(1/(nStates+4));
         % hOpt = A*N^-(1/nStates+4); 
         hOpt = const.est.pf.rpf_h;

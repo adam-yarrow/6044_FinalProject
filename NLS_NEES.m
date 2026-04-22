@@ -62,7 +62,7 @@ for i = 1:MC_Runs
 
     R_NLS = (V_NLS*35)*eye(N);
     
-    H_NLS = @(debris_x) compute_H_wrapper(tk, debris_x, GPS_x, Receiver_x, ft, c, dT);
+    H_NLS = @(debris_x) compute_H_wrapper(tk, debris_x, GPS_x, Receiver_x, ft, c, dT, NLS_Params);
     h_NLS = @(debris_x) h_batch_wrapper(tk, debris_x, GPS_x, Receiver_x, ft, dT, NLS_Params);
 
     debris_x0 = debris_x0_true + randn(size(debris_x0_true)).*[10;0.01;10;0.01];

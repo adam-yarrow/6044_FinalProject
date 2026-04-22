@@ -1,4 +1,4 @@
-function H_k1 = compute_H_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, c, dT)
+function H_k1 = compute_H_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, c, dT, const)
 
 % Inputs:
 % tk           : [N x 1] time vector
@@ -21,7 +21,7 @@ function H_k1 = compute_H_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, c, dT)
     for k = 1:length(tk)
         
         if tk(k) > t_current
-        debris_x = OrbitalDynamics(t_current, debris_x, tk(k) - t_current)';
+        debris_x = OrbitalDynamics(t_current, debris_x, tk(k) - t_current, const)';
         t_current = tk(k);
         end
 

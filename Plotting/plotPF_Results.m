@@ -1,9 +1,8 @@
-function plotPF_Results(simData, pfResults)
+function plotPF_Results(simData, pfResults, const)
     %{
         Plots the response of the PF for a single run.
     %}
 
-    const = ModelParams();
 
     %% States Plot - MMSE and covariance 
 

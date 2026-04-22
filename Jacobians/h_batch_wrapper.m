@@ -24,7 +24,7 @@ function h_k1 = h_batch_wrapper(tk, debris_x0, GPS_x, Receiver_x, ft, dT, const)
     for k = 1:N
         
         if tk(k) > t_current
-        debris_x = OrbitalDynamics(t_current, debris_x, tk(k) - t_current)';
+        debris_x = OrbitalDynamics(t_current, debris_x, tk(k) - t_current,const)';
         t_current = tk(k);
         end
         

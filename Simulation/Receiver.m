@@ -9,17 +9,20 @@ classdef Receiver < handle
         % Properties
         id;
         dT;
+
+        const
     end
 
     methods 
         %{
             Constructor
         %}
-        function obj = Receiver(id, x0)
+        function obj = Receiver(id, x0, const)
             obj.x = x0;
             obj.t = 0;
             obj.id = id;
-            obj.dT = ModelParams('dT');
+            obj.dT = const.dT;
+            obj.const = const;
         end
 
         %{
@@ -27,7 +30,7 @@ classdef Receiver < handle
         %}
         function stepDynamics(obj)
             % Propagate dynamics
-            obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT);
+            obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT, obj.const);
             
             % NOTE: assuming no process noise in Rx because it is fixed on
             % Earth

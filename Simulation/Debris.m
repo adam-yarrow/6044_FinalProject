@@ -16,6 +16,10 @@ classdef Debris < handle
         nProcessNoiseStates;
         processNoise; % Storage for process noise vector
 
+        rE
+
+        const
+
         % Properties
         id;
         dT;
@@ -25,18 +29,20 @@ classdef Debris < handle
         %{
             Constructs a single piece of debris
         %}
-        function obj = Debris(id, x0)
+        function obj = Debris(id, x0, const)
             obj.x = x0;
             obj.t = 0;
             obj.id = id;
-            obj.dT = ModelParams('dT');
-            obj.debrisParams = ModelParams('debris');
+            obj.dT = const.dT;
+            obj.debrisParams = const.debris;
 
             % Euler approx of process noise
             obj.W = obj.debrisParams.W;
             obj.Sw = chol(obj.W,'lower');
             obj.nProcessNoiseStates = size(obj.W,1);
-            obj.processNoise = zeros(ModelParams('nStates'),1);
+            obj.processNoise = zeros(const.nStates,1);
+            obj.rE = const.rEarth;
+            obj.const = const;
         end
 
         %{
@@ -50,9 +56,9 @@ classdef Debris < handle
                 % gaussian noise.
                 obj.processNoise = obj.debrisParams.gamma * obj.Sw * ...
                                randn(obj.nProcessNoiseStates,1);
-                obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT, obj.processNoise);
+                obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT, obj.const, obj.processNoise);
             else
-                obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT);
+                obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT, obj.const);
             end
 
             % Update time
@@ -103,7 +109,6 @@ classdef Debris < handle
             Check line of sight
         %}
         function fValidLineOfSight = checkLineOfSight(obj,xGPS)
-            rE = ModelParams('rEarth');
             % X = xGPS(1);
             % Y = xGPS(3);
             posGPS = [xGPS(1); xGPS(3)];
@@ -117,7 +122,7 @@ classdef Debris < handle
             if (dot(posGPS, posDebris) <= 0)
                 % Now see if the debris is observable based on angle
                 % between GPS and earth radius
-                betaCrit = atan2(rE,norm(posGPS));
+                betaCrit = atan2(obj.rE,norm(posGPS));
 
                 % Project the relative position of the debris onto the unit
                 % vector from the debris towards the centre of the earth

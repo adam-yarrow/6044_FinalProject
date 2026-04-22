@@ -56,18 +56,18 @@ function [pf] = Run_PF(type, Np, simData, P0, mu0, nWorkers, const)
         % Wrapper for IS distribution
         dTgps = currentGPStime - prevGPStime;
         q = @(xk) sampleIS_Distribution(xk, dTgps, const.debris, ...
-            const.est.pf.processNoiseCov ); % Transition distribution
+            const.est.pf.processNoiseCov,const); % Transition distribution
 
         % Run PF
         switch lower(type)
             case 'sir'
                  [pf.x(:,:,k), pf.wNormalized(:,k), est_k,  pf.w(:,k), ...
                      pf.Ness(k), pf.wTot(k), status] = ...
-                    SIR_PF(pf.x(:,:,kt1), pf.wNormalized(:,kt1), yk, q);
+                    SIR_PF(pf.x(:,:,kt1), pf.wNormalized(:,kt1), yk, q, const);
 
             case 'rpf'
                  outputs = RPF(pf.x(:,:,kt1), pf.wNormalized(:,kt1), yk, q, ...
-                            const.est.pf.NessTol, nWorkers);
+                            const.est.pf.NessTol, nWorkers, const);
                  pf.x(:,:,k) = outputs.x;
                  pf.wNormalized(:,k) = outputs.wNormalized;
                  est_k = outputs.est;

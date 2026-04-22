@@ -12,22 +12,25 @@ classdef GPS < handle
         emitRate; % Hz (for sending a GPS packet)
         L1; % GPS carrier frequency
         dT;
+
+        const
     end
 
     methods 
         %{
             Constructor
         %}
-        function obj = GPS(id, x0)
-            gpsParams = ModelParams('gps');
+        function obj = GPS(id, x0, const)
+            gpsParams = const.gps;
 
             obj.x = x0;
             obj.t = 0;
             obj.id = id;
             obj.emitRate = gpsParams.emitRate;
             obj.L1 = gpsParams.L1freq; % Hz 
-            obj.dT = ModelParams('dT');
+            obj.dT = const.dT;
             obj.clockCountsSinceLastEmit = 0;
+            obj.const = const;
 
             % TODO - work out if want to use L1 or CA code? which one gets
             % doppler shifted.
@@ -38,7 +41,7 @@ classdef GPS < handle
         %}
         function stepDynamics(obj)
             % Propagate dynamics
-            obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT);
+            obj.x = OrbitalDynamics(obj.t, obj.x, obj.dT, obj.const);
 
             % Update time
             obj.t = obj.t + obj.dT;

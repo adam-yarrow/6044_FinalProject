@@ -1,4 +1,4 @@
-function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness, wTot] = SIR_PF(x_k, w_k, y_kp1, q)
+function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness, wTot] = SIR_PF(x_k, w_k, y_kp1, q, const)
 %{
     x_k = nStates x N particles
     w_k = N x 1 weights, unused because renormalize each loop
@@ -10,8 +10,6 @@ function [x_kp1, w_kp1_Normalized, est, w_kp1, Ness, wTot] = SIR_PF(x_k, w_k, y_
     [nStates, N] = size(x_k);
     x_kp1 = NaN(nStates,N);
     w_kp1 = NaN(N,1);
-
-    const = ModelParams();
 
     % Check if measurement has time of flight included
     fIncludeTimeDelay = false;

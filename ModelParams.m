@@ -58,7 +58,7 @@ const.debris.gamma = [0, 0;
                       0, 1]; % Process noise only impacts acceleration states
 
 % Receiver Parameters
-const.rx.nRx = 13; % Every 30 deg
+const.rx.nRx = 12; % Every 30 deg
 const.rx.dopplerThreshold = calcDopplerThreshold(const.gps.L1freq,...
                                                  const.rEarth, const.gps.altitude,...
                                                  const.mu, const.c); % |Doppler frequency| in Hz you can't detect

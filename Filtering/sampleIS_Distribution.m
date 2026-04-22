@@ -1,4 +1,4 @@
-function [xkp1] = sampleIS_Distribution(xk, dT, debrisParam, Wpf)
+function [xkp1] = sampleIS_Distribution(xk, dT, debrisParam, Wpf,const)
     %{
         Samples the importance sampling distribution for the debris
         problem.
@@ -13,5 +13,5 @@ function [xkp1] = sampleIS_Distribution(xk, dT, debrisParam, Wpf)
     processNoise = debrisParam.gamma * Sw * randn(size(Sw,1),1);
 
     % Push noise through dynamics
-    [xkp1] = OrbitalDynamics(0,xk,dT,processNoise);
+    [xkp1] = OrbitalDynamics(0,xk,dT,const, processNoise);
 end
