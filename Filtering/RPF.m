@@ -41,7 +41,7 @@ function [outputs] = RPF(x_k, w_k, y_kp1, q, effectiveParticlesTol, nWorkers)
         [pLikelihoood, yHat(:,:,iParticle)] = pYgivenX(x_kp1(:,iParticle),...
             y_kp1, const, R, const.est.pf.fUseLogSpace);
         if const.est.pf.fUseLogSpace
-            w_kp1(iParticle) = pLikelihoood + w_k(iParticle);
+            w_kp1(iParticle) = pLikelihoood + log(w_k(iParticle));
         else
             w_kp1(iParticle) = pLikelihoood*w_k(iParticle);
         end

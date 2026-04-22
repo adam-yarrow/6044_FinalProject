@@ -14,6 +14,9 @@ end
 rng(0);
 
 params = ModelParams();
+
+params.endTime = 50;
+
 % Update covariance estimate and mean
 [mu0, P0] = makePriorDistribution(params);
 % update velocities from NLS (as NLS doesnt use position fusion --> pos will be bad)

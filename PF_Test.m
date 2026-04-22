@@ -22,4 +22,5 @@ pfResultsTest = Run_PF(type, Np, simDataTest, P0, mu0, nWorkers, params);
 
 plotPF_Results(simData,pfResults);
 
+%% KS Test
 [dt_history, dtMean, testStatistic] = PF_KS_Test(simDataTest,pfResultsTest,params);
