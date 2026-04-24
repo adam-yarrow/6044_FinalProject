@@ -9,7 +9,7 @@ const.omegaEarth = 2*pi/86400; % rad/s
 const.mu = 398600; % km^3/s^2
 const.c = 299792.458; % km/s
 const.karmanLine = 100; % km
-const.endTime = 6500/4; % seconds
+const.endTime = 6500; % seconds
 
 const.fEnableProgressBars = true;
 
@@ -71,8 +71,8 @@ const.rx.V = diag([dopplerMeasStdDev^2; timeOfFlightStdDev^2]); % doppler (Hz)^2
 %% Filtering parameters
 processNoiseInflationSF = 10; %0.1;
 const.est.pf.processNoiseCov = const.debris.W * processNoiseInflationSF;
-dopplerInflationSF = 35; 50;
-deltaTInflationSF = 1000; 100;
+dopplerInflationSF = 5;
+deltaTInflationSF = 50;
 const.est.pf.measNoiseCov = diag([dopplerMeasStdDev^2*dopplerInflationSF;...
                                     timeOfFlightStdDev^2*deltaTInflationSF]);
 

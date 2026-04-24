@@ -8,12 +8,14 @@ function plotPF_Results(simData, pfResults, const)
 
     %% NESS
     figure('Name','Number of Effective Particles');
-    plot(pfResults.t, pfResults.Ness,'r','DisplayName','Ness');
+    plot(pfResults.t, pfResults.Ness,'r','DisplayName','Ness','LineWidth',1.5);
     grid on;
     xlabel('Time (s)');
     ylabel('Ness');
-    yline(pfResults.Np,'k--','DisplayName','Number of Particles');
     title('Number of Effective Particles Vs Time');
+    ax = gca;
+    ax.LineWidth = 2;  % Thicker axes
+    ax.FontSize = 12;
 
     %% Animated Histogram of Weights vs Time
     % plotWeightsAnimation(pfResults);
@@ -62,17 +64,21 @@ function plotErrors(simData, pfResults, const, sigmaLevel)
     for iState = 1:const.nStates
         subplot(2,2,iState);
         hold on;
-        plot(simData.t(truthIdxMatchingPF), stateErrors(iState,:),'r');
+        plot(simData.t(truthIdxMatchingPF), stateErrors(iState,:),'r','LineWidth',1.5);
         stdDevOfState = squeeze(pfResults.xCov(iState,iState,:)).^0.5;
-        plot(simData.t(truthIdxMatchingPF),-sigmaLevel*stdDevOfState,'k--');
-        plot(simData.t(truthIdxMatchingPF),sigmaLevel*stdDevOfState,'k--');
+        plot(simData.t(truthIdxMatchingPF),-sigmaLevel*stdDevOfState,'k--','LineWidth',1.5);
+        plot(simData.t(truthIdxMatchingPF),sigmaLevel*stdDevOfState,'k--','LineWidth',1.5);
         grid on;
         xlabel('Time (s)');
         ylabel(sprintf('%s (%s)',const.stateNames{iState},...
             const.stateUnits{iState}))
         legend('Error',sprintf('%i-sigma Bound',sigmaLevel));
+        ax = gca;
+        ax.LineWidth = 2;  % Thicker axes
+        ax.FontSize = 12;
     end
     sgtitle('State Errors vs Time')
+
     
 end
 
