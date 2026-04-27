@@ -11,17 +11,6 @@ Np = 1000;
 
 params = ModelParams();
 params.endTime = 500;
-% processNoiseInflationSF = 10;
-% dopplerInflationSF = 1;
-% deltaTInflationSF = 25;
-
-
-% params.est.pf.processNoiseCov = params.debris.W * processNoiseInflationSF;
-% dopplerMeasStdDev = sqrt(30); % Hz - see paper by Kassas and Khairallah, 2023
-% timeOfFlightStdDev =  sqrt(3E-16)*1E6; % microseconds (TODO MAYBE too small, could also do a range based sigma estimate)
-% params.est.pf.measNoiseCov = diag([dopplerMeasStdDev^2*dopplerInflationSF;...
-%                                     timeOfFlightStdDev^2*deltaTInflationSF]);
-
 params.fEnableProgressBars = false;
 [mu0, P0] = makePriorDistribution(params);
 
