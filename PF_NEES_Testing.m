@@ -10,8 +10,8 @@ nWorkers = 6;
 Np = 1000;
 
 params = ModelParams();
+params.endTime = 500;
 params.fEnableProgressBars = false;
-params.endTime = 10;
 [mu0, P0] = makePriorDistribution(params);
 
 % Warm start with NLS
@@ -27,7 +27,6 @@ P0(4,4) = P_NLS(4,4);
 P0(4,2) = P_NLS(4,2);
 
 neesData = PF_NEES(nMC, rngSeed, nWorkers, params, mu0, P0, Np);
-
 
 %% Plotting
 r1_ind = chi2inv(alpha/2, params.nStates);
@@ -48,29 +47,6 @@ grid on;
 ylabel('NEES Statistic');
 xlabel('Time (s)')
 
-subplot(1,2,2);
-hold on;
-plot(neesData.t, neesData.averageNEES, 'bo', 'MarkerFaceColor', 'b'); 
-yline(r1_avg, 'r--', 'Lower Bound (average)');
-yline(r2_avg, 'r--', 'Upper Bound (average)');
-title('Average NEES Statistic');
-grid on;
-xlabel('Time (s)');
-ylabel('Average NEES Statistic')
-
-% Error Plots
-figure('Name', 'NEES Consistency Test');
-subplot(1,2,1);
-hold on;
-plot(neesData.t, neesData.neesHistory, 'bo', 'MarkerFaceColor', 'b'); 
-yline(r1_ind, 'r--', 'Lower Bound (individual)');
-yline(r2_ind, 'r--', 'Upper Bound (individual)');
-title('NEES Statistic History')
-grid on;
-ylabel('NEES Statistic');
-xlabel('Time (s)')
-
-% Average NEES
 subplot(1,2,2);
 hold on;
 plot(neesData.t, neesData.averageNEES, 'bo', 'MarkerFaceColor', 'b'); 

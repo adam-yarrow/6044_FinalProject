@@ -1,4 +1,4 @@
-function [dt_history, dtMean, testStatistic] = PF_KS_Test(simData, pfResults, params,nWorkers)
+function [dt_history, dtMean, testStatistic,varDmean_t,Dt_mu] = PF_KS_Test(simData, pfResults, params,nWorkers)
     % Based off paper: "Assessment of Nonlinear Dynamic Models by KS
     % Statistics", Djuric and Miguez, 2010
     nTimes = numel(pfResults.t);
@@ -23,11 +23,16 @@ function [dt_history, dtMean, testStatistic] = PF_KS_Test(simData, pfResults, pa
     nSensorCombs = nRx*nGPS;
     dt_history = NaN(nMeasVars, nSensorCombs, nTimes); % At each time get different number of measurements
     dtMean = NaN(nMeasVars, nSensorCombs, nTimes);
-    testStatistic = NaN(nMeasVars, nSensorCombs, nTimes);
+    testStatistic = NaN(nMeasVars, nSensorCombs, nTimes); % This should be distributed with 0 mean and variance of varDmean_t
+    % Dmean_t = NaN(nMeasVars, nTimes); % This is distributed approximately gaussianly with a zero mean and Dt_var
+    varDmean_t = NaN(nTimes,1);
+
 
     t0 = tic();
     wb = progressBar(1,nTimes,t0,[],'Running PF KS Test');
     for t = 1:nTimes
+        varDmean_t(t) = Dt_var/t;
+        
         % Resample J particles (TODO - is this correct?)
         indicesToSampleFrom = randsample(1:Np,J,true,pfResults.wNormalized(:,t)');
         x_t = pfResults.x(:,indicesToSampleFrom,t);
@@ -43,20 +48,15 @@ function [dt_history, dtMean, testStatistic] = PF_KS_Test(simData, pfResults, pa
 
         nMeasurements = size(y,2);
         
+        % Process every measurement
         for iMeas = 1:nMeasurements
-
-            %% TODO - handle each measurement here
-            %% TODO - make this into a sub function below to do for each meas type (Rx,GPS)
-
             currentMeasId = rxIds(iMeas) * gpsIds(iMeas);
 
             y_tilde = zeros(nMeasVars,K);
             % Generate K fake observations
             for k = 1:K
                 y_tilde_k = zeros(nMeasVars,1);
-                parfor (j = 1:J, nWorkers)
-                    % TODO - are we meant to use our real measurement model
-                    % here or the PF truth one?                    
+                parfor (j = 1:J, nWorkers)                   
                     y_tilde_k = y_tilde_k +...
                         measurementModel(params.gps.L1freq, xGPS(:,iMeas), ...
                             x_t(:,j), xRx(:,iMeas), fIncludeTimeDelay,...
@@ -75,7 +75,9 @@ function [dt_history, dtMean, testStatistic] = PF_KS_Test(simData, pfResults, pa
             dtMean(:,currentMeasId,t) = mean(dt_history(:,currentMeasId,:),3,'omitnan');
             testStatistic(:,currentMeasId,t) = abs(dtMean(:,currentMeasId,t) ...
                                                 - Dt_mu);
+            
         end
+        % Dmean_t(:,t) = mean(testStatistic, 2,'omitnan'); 
 
         wb = progressBar(t, nTimes, t0, wb);        
         if isfield(wb, 'cancelled') && wb.cancelled
@@ -84,11 +86,8 @@ function [dt_history, dtMean, testStatistic] = PF_KS_Test(simData, pfResults, pa
         end
     end
     
-    testStatisticMean = mean(testStatistic, 2,'omitnan');
 
     %% Plotting
-
-    %%TODO finish plotting
     figure();
     subplot(1,2,1);
     plot(pfResults.t, squeeze(dtMean(1,:,:)),'r*');
@@ -96,15 +95,6 @@ function [dt_history, dtMean, testStatistic] = PF_KS_Test(simData, pfResults, pa
     subplot(1,2,2);
     plot(pfResults.t, squeeze(dtMean(2,:,:)),'r*');
 
-
-    figure();
-    subplot(1,2,1);
-    % plot(pfResults.t, squeeze(testStatistic(1,:,:)),'r*');
-    plot(pfResults.t, testStatisticMean(1,:),'r');
-
-    subplot(1,2,2);
-    % plot(pfResults.t, squeeze(testStatistic(2,:,:)),'r*');
-    plot(pfResults.t, testStatisticMean(1,:),'r');
 
 
 end
