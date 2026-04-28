@@ -1,7 +1,9 @@
 clear all; close all; clc
 %rng(0);
 Startup;
+cond_MC = 1;
 
+%while cond_MC == 1
 %% Options Struct for NLS Solver
 nlsOptions = struct();
 nlsOptions.maxIterations = 100;
@@ -16,7 +18,7 @@ nlsOptions.alphaSF = 0.5;
 %% NLS Inputs Definition
 
 NLS_Params = ModelParams();
-endTime = 50;
+endTime = 250;
 NLS_Params.rx.fImplementDopplerThresholdGating = true;
 
 ft = NLS_Params.gps.L1freq;
@@ -29,15 +31,6 @@ V_NLS = NLS_Params.rx.V(1,1)/dT;
 %% Monte Carlo Simulation
 
 MC_Runs = 50;
-
-alpha = 0.05;
-% Individual NEES bounds (chi2 with nStates DOF)
-r1_ind = chi2inv(alpha/2, nStates);
-r2_ind = chi2inv(1-alpha/2, nStates);
-
-% Average NEES bounds (chi2 with MC_Runs*nStates DOF, scaled)
-r1_avg = chi2inv(alpha/2, MC_Runs*nStates) / MC_Runs;
-r2_avg = chi2inv(1-alpha/2, MC_Runs*nStates) / MC_Runs;
 
 nees_hist = zeros(MC_Runs, 1);
 err_hist = zeros(MC_Runs, nStates);
@@ -54,13 +47,14 @@ for i = 1:MC_Runs
     simData = Simulation(thetaGPS, thetaRx, debris_x0_true, endTime, NLS_Params);
 
     y = simData.meas.y';
+    y = y(:,1);
     tk = simData.meas.time;
     GPS_x = simData.meas.xGPS;
     Receiver_x = simData.meas.xRx;
     
     N = length(y);
 
-    R_NLS = (V_NLS*35)*eye(N);
+    R_NLS = (V_NLS*160)*eye(N);
     
     H_NLS = @(debris_x) compute_H_wrapper(tk, debris_x, GPS_x, Receiver_x, ft, c, dT, NLS_Params);
     h_NLS = @(debris_x) h_batch_wrapper(tk, debris_x, GPS_x, Receiver_x, ft, dT, NLS_Params);
@@ -81,16 +75,32 @@ avg_err = mean(err_hist);
 
 %% Plotting
 
+alpha = 0.01;
+
+% Individual NEES bounds (chi2 with nStates DOF)
+r1_ind = chi2inv(alpha/2, nStates);
+r2_ind = chi2inv(1-alpha/2, nStates);
+
+% Average NEES bounds (chi2 with MC_Runs*nStates DOF, scaled)
+r1_avg = chi2inv(alpha/2, MC_Runs*nStates) / MC_Runs;
+r2_avg = chi2inv(1-alpha/2, MC_Runs*nStates) / MC_Runs;
+
 figure('Name', 'NEES Consistency Test');
 plot(nees_hist, 'bo', 'MarkerFaceColor', 'b'); hold on;
-yline(r1_ind, 'r--', 'Lower Bound (individual)');
-yline(r2_ind, 'r--', 'Upper Bound (individual)');
+% yline(r1_ind, 'r--', 'Lower Bound (individual)');
+% yline(r2_ind, 'r--', 'Upper Bound (individual)');
 yline(nStates, 'k-', 'Ideal NEES', 'LineWidth', 2);
 
-%% % Plot average NEES as horizontal line with its own bounds
-% yline(avg_nees, 'm-', 'Avg NEES', 'LineWidth', 2);
-% yline(r1_avg, 'g--', 'Lower Bound (avg)');
-% yline(r2_avg, 'g--', 'Upper Bound (avg)');
+ % Plot average NEES as horizontal line with its own bounds
+yline(avg_nees, 'm-', 'Avg NEES', 'LineWidth', 2);
+yline(r1_avg, 'g--', 'Lower Bound (avg)');
+yline(r2_avg, 'g--', 'Upper Bound (avg)');
 xlabel('Run Number'); ylabel('NEES');
 title(['Avg NEES: ', num2str(avg_nees), ' (Target: ', num2str(nStates), ')']);
 grid on;
+
+if round(avg_nees,1) == nStates
+    cond_MC = 0;
+end
+
+%end

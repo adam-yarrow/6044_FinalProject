@@ -15,7 +15,7 @@ nlsOptions.alphaSF = 0.5;
 %% NLS Inputs Definition
 
 NLS_Params = ModelParams();
-NLS_Params.endTime = 50;
+NLS_Params.endTime = 250;
 NLS_Params.rx.fImplementDopplerThresholdGating = true;
 NLS_Params.fIncludeTimeOfFlight = false;  
 
@@ -39,7 +39,7 @@ dT = NLS_Params.dT;
 processNoise = NLS_Params.debris.W;
 
 V_NLS = NLS_Params.rx.V(1,1)/dT;
-R_NLS = (V_NLS*35)*eye(N);
+R_NLS = (V_NLS*100)*eye(N);
 
 %%
    
